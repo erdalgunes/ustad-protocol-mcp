@@ -1,27 +1,27 @@
 """
-🛡️ Ustad Protocol Anti-Pattern Detection Framework
-==================================================
+🧠 Ustad Protocol Cognitive Scaffolding Framework
+===============================================
 
-Common utilities and base classes for detecting and preventing AI failure patterns:
-- Context degradation
-- Impulsiveness  
-- Task abandonment
-- Over-engineering
-- Hallucinations
+Support tools and utilities for providing cognitive assistance with common computing challenges:
+- Memory fragmentation / Context switching overhead
+- Race conditions / Premature optimization  
+- Process termination / Resource cleanup issues
+- Memory bloat / Unnecessary complexity
+- Cache misses / Unverified data confidence
 
-This framework provides the foundation for building real-time pattern detection
-and intervention tools that integrate with the Ustad Protocol MCP server.
+This framework provides cognitive scaffolding tools that integrate with the Ustad Protocol MCP server
+to support effective reasoning and execution patterns.
 """
 
-from .base import AntiPatternDetector, PatternAlert, PatternSeverity
+from .base import CognitiveScaffoldTool, SupportAlert, SupportSeverity
 from .context import ContextTracker
 from .utils import analyze_conversation, extract_patterns, generate_recommendations
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
-    "AntiPatternDetector",
-    "PatternAlert", 
-    "PatternSeverity",
+    "CognitiveScaffoldTool",
+    "SupportAlert", 
+    "SupportSeverity",
     "ContextTracker",
     "analyze_conversation",
     "extract_patterns",

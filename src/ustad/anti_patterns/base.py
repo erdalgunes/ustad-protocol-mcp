@@ -1,5 +1,5 @@
 """
-Base classes and utilities for anti-pattern detection.
+Base classes and utilities for cognitive scaffolding and support tools.
 """
 
 from abc import ABC, abstractmethod
@@ -10,30 +10,30 @@ from datetime import datetime
 import json
 
 
-class PatternSeverity(Enum):
-    """Severity levels for detected anti-patterns"""
-    LOW = "low"           # Minor issue, gentle suggestion
-    MEDIUM = "medium"     # Notable issue, clear recommendation  
-    HIGH = "high"         # Critical issue, strong intervention needed
-    CRITICAL = "critical" # Severe issue, immediate action required
+class SupportSeverity(Enum):
+    """Support intensity levels for cognitive scaffolding"""
+    LOW = "low"           # Light guidance, gentle suggestion
+    MEDIUM = "medium"     # Clear assistance, helpful recommendation  
+    HIGH = "high"         # Strong support, important scaffolding needed
+    CRITICAL = "critical" # Intensive support, immediate assistance required
 
 
 @dataclass
-class PatternAlert:
-    """Alert generated when an anti-pattern is detected"""
-    pattern_type: str                    # Type of pattern detected
-    severity: PatternSeverity           # How severe the issue is
-    confidence: float                   # Confidence in detection (0-1)
+class SupportAlert:
+    """Alert generated when cognitive scaffolding support is recommended"""
+    support_type: str                   # Type of cognitive support needed
+    severity: SupportSeverity          # How much assistance is recommended
+    confidence: float                   # Confidence in recommendation (0-1)
     message: str                        # Human-readable description
-    recommendations: List[str]          # Actionable suggestions
+    recommendations: List[str]          # Actionable support suggestions
     context: Dict[str, Any]            # Additional context data
-    timestamp: datetime                 # When detected
+    timestamp: datetime                 # When support was recommended
     session_id: str                    # Which session this relates to
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert alert to dictionary for JSON serialization"""
+        """Convert support alert to dictionary for JSON serialization"""
         return {
-            "pattern_type": self.pattern_type,
+            "support_type": self.support_type,
             "severity": self.severity.value,
             "confidence": self.confidence,
             "message": self.message,
@@ -44,11 +44,11 @@ class PatternAlert:
         }
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PatternAlert":
-        """Create alert from dictionary"""
+    def from_dict(cls, data: Dict[str, Any]) -> "SupportAlert":
+        """Create support alert from dictionary"""
         return cls(
-            pattern_type=data["pattern_type"],
-            severity=PatternSeverity(data["severity"]),
+            support_type=data["support_type"],
+            severity=SupportSeverity(data["severity"]),
             confidence=data["confidence"],
             message=data["message"],
             recommendations=data["recommendations"],
@@ -58,23 +58,23 @@ class PatternAlert:
         )
 
 
-class AntiPatternDetector(ABC):
-    """Base class for all anti-pattern detection tools"""
+class CognitiveScaffoldTool(ABC):
+    """Base class for all cognitive scaffolding support tools"""
     
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
         self.enabled = True
-        self.detection_count = 0
-        self.last_detection = None
+        self.support_count = 0
+        self.last_support = None
         
     @abstractmethod
     def analyze(self, 
                 conversation_history: List[Dict[str, Any]], 
                 current_context: Dict[str, Any],
-                session_id: str) -> List[PatternAlert]:
+                session_id: str) -> List[SupportAlert]:
         """
-        Analyze conversation for anti-patterns.
+        Analyze conversation for cognitive support opportunities.
         
         Args:
             conversation_history: List of previous messages/exchanges
@@ -82,34 +82,34 @@ class AntiPatternDetector(ABC):
             session_id: Unique identifier for this session
             
         Returns:
-            List of detected pattern alerts
+            List of cognitive support recommendations
         """
         pass
     
     @abstractmethod
-    def get_prevention_suggestions(self, 
-                                 alert: PatternAlert,
-                                 context: Dict[str, Any]) -> List[str]:
+    def get_scaffolding_suggestions(self, 
+                                  alert: SupportAlert,
+                                  context: Dict[str, Any]) -> List[str]:
         """
-        Get specific prevention suggestions for a detected pattern.
+        Get specific scaffolding suggestions for cognitive support.
         
         Args:
-            alert: The pattern alert that was detected
+            alert: The support alert that was recommended
             context: Additional context for generating suggestions
             
         Returns:
-            List of actionable prevention recommendations
+            List of actionable scaffolding recommendations
         """
         pass
     
-    def is_pattern_present(self, 
-                          conversation_history: List[Dict[str, Any]], 
-                          context: Dict[str, Any]) -> Tuple[bool, float]:
+    def is_support_needed(self, 
+                         conversation_history: List[Dict[str, Any]], 
+                         context: Dict[str, Any]) -> Tuple[bool, float]:
         """
-        Quick check if pattern is present without full analysis.
+        Quick check if cognitive support is needed without full analysis.
         
         Returns:
-            (is_present, confidence_score)
+            (support_needed, confidence_score)
         """
         alerts = self.analyze(conversation_history, context, "quick_check")
         if alerts:
@@ -117,17 +117,17 @@ class AntiPatternDetector(ABC):
             return True, max_confidence
         return False, 0.0
     
-    def create_alert(self,
-                    pattern_type: str,
-                    severity: PatternSeverity,
-                    confidence: float,
-                    message: str,
-                    recommendations: List[str],
-                    context: Dict[str, Any],
-                    session_id: str) -> PatternAlert:
-        """Helper method to create standardized alerts"""
-        alert = PatternAlert(
-            pattern_type=pattern_type,
+    def create_support_alert(self,
+                           support_type: str,
+                           severity: SupportSeverity,
+                           confidence: float,
+                           message: str,
+                           recommendations: List[str],
+                           context: Dict[str, Any],
+                           session_id: str) -> SupportAlert:
+        """Helper method to create standardized support alerts"""
+        alert = SupportAlert(
+            support_type=support_type,
             severity=severity,
             confidence=confidence,
             message=message,
@@ -137,84 +137,84 @@ class AntiPatternDetector(ABC):
             session_id=session_id
         )
         
-        self.detection_count += 1
-        self.last_detection = alert.timestamp
+        self.support_count += 1
+        self.last_support = alert.timestamp
         
         return alert
     
     def get_statistics(self) -> Dict[str, Any]:
-        """Get detection statistics for this tool"""
+        """Get support statistics for this tool"""
         return {
             "name": self.name,
             "enabled": self.enabled,
-            "detection_count": self.detection_count,
-            "last_detection": self.last_detection.isoformat() if self.last_detection else None
+            "support_count": self.support_count,
+            "last_support": self.last_support.isoformat() if self.last_support else None
         }
 
 
-class PatternDetectionEngine:
-    """Coordinates multiple anti-pattern detectors"""
+class CognitiveScaffoldingEngine:
+    """Coordinates multiple cognitive scaffolding support tools"""
     
     def __init__(self):
-        self.detectors: Dict[str, AntiPatternDetector] = {}
-        self.alert_history: List[PatternAlert] = []
+        self.scaffold_tools: Dict[str, CognitiveScaffoldTool] = {}
+        self.support_history: List[SupportAlert] = []
         self.enabled = True
         
-    def register_detector(self, detector: AntiPatternDetector):
-        """Register a new anti-pattern detector"""
-        self.detectors[detector.name] = detector
+    def register_scaffold_tool(self, tool: CognitiveScaffoldTool):
+        """Register a new cognitive scaffolding tool"""
+        self.scaffold_tools[tool.name] = tool
         
-    def unregister_detector(self, name: str):
-        """Remove a detector"""
-        if name in self.detectors:
-            del self.detectors[name]
+    def unregister_scaffold_tool(self, name: str):
+        """Remove a scaffolding tool"""
+        if name in self.scaffold_tools:
+            del self.scaffold_tools[name]
     
     def analyze_all(self, 
                    conversation_history: List[Dict[str, Any]], 
                    current_context: Dict[str, Any],
-                   session_id: str) -> List[PatternAlert]:
-        """Run all enabled detectors and return consolidated alerts"""
+                   session_id: str) -> List[SupportAlert]:
+        """Run all enabled scaffolding tools and return consolidated support recommendations"""
         if not self.enabled:
             return []
             
         all_alerts = []
         
-        for detector in self.detectors.values():
-            if detector.enabled:
+        for tool in self.scaffold_tools.values():
+            if tool.enabled:
                 try:
-                    alerts = detector.analyze(conversation_history, current_context, session_id)
+                    alerts = tool.analyze(conversation_history, current_context, session_id)
                     all_alerts.extend(alerts)
                 except Exception as e:
-                    # Log error but don't fail entire detection
-                    print(f"Error in detector {detector.name}: {e}")
+                    # Log error but don't fail entire scaffolding analysis
+                    print(f"Error in scaffolding tool {tool.name}: {e}")
                     
         # Sort by severity and confidence
         all_alerts.sort(key=lambda x: (x.severity.value, x.confidence), reverse=True)
         
         # Store in history
-        self.alert_history.extend(all_alerts)
+        self.support_history.extend(all_alerts)
         
         return all_alerts
     
-    def get_active_patterns(self, session_id: str) -> List[PatternAlert]:
-        """Get recent alerts for a specific session"""
+    def get_active_support(self, session_id: str) -> List[SupportAlert]:
+        """Get recent support recommendations for a specific session"""
         recent_alerts = [
-            alert for alert in self.alert_history[-50:]  # Last 50 alerts
+            alert for alert in self.support_history[-50:]  # Last 50 alerts
             if alert.session_id == session_id
         ]
         return recent_alerts
     
     def get_summary_report(self) -> Dict[str, Any]:
-        """Get summary of all detector activity"""
+        """Get summary of all scaffolding tool activity"""
         return {
             "enabled": self.enabled,
-            "total_detectors": len(self.detectors),
-            "active_detectors": sum(1 for d in self.detectors.values() if d.enabled),
-            "total_alerts": len(self.alert_history),
-            "detector_stats": [d.get_statistics() for d in self.detectors.values()],
-            "recent_alerts": len([a for a in self.alert_history[-100:]])  # Last 100
+            "total_scaffold_tools": len(self.scaffold_tools),
+            "active_scaffold_tools": sum(1 for t in self.scaffold_tools.values() if t.enabled),
+            "total_support_recommendations": len(self.support_history),
+            "scaffold_tool_stats": [t.get_statistics() for t in self.scaffold_tools.values()],
+            "recent_support": len([a for a in self.support_history[-100:]])  # Last 100
         }
 
 
-# Global detection engine instance
-detection_engine = PatternDetectionEngine()
+# Global cognitive scaffolding engine instance
+scaffolding_engine = CognitiveScaffoldingEngine()
