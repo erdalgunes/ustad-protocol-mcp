@@ -1,33 +1,63 @@
 version: '3.8'
 
 services:
-  perfect-collaborative-bot:
+  # Main Ustad MCP Server with SSE transport
+  ustad-mcp:
     build: .
-    container_name: perfect-collaborative-bot-mcp
+    container_name: ustad-mcp-server
+    ports:
+      - "8000:8000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PYTHONPATH=/app/src
-    ports:
-      - "8080:8080"
-    stdin_open: true
-    tty: true
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - PYTHONUNBUFFERED=1
     volumes:
-      # Mount source for development
-      - ./src:/app/src
+      # Optional: Mount for persistent data
+      - ./data:/app/data
+      # Optional: Mount for logs
+      - ./logs:/app/logs
     restart: unless-stopped
-    
-  # HTTP mode version (alternative to stdio)
-  perfect-collaborative-bot-http:
-    build: .
-    container_name: perfect-collaborative-bot-http
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PYTHONPATH=/app/src
-      - MCP_MODE=http
-    ports:
-      - "8081:8080"
-    volumes:
-      - ./src:/app/src
-    restart: unless-stopped
-    profiles:
-      - http
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.ustad.service=mcp-server"
+      - "com.ustad.transport=sse"
+      - "com.ustad.version=v0.1.7"
+
+  # Alternative: HTTP transport version (commented out)
+  # ustad-mcp-http:
+  #   build: .
+  #   container_name: ustad-mcp-http
+  #   command: ["python", "ustad_fastmcp.py", "--http", "8000"]
+  #   ports:
+  #     - "8001:8000"
+  #   environment:
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #     - TAVILY_API_KEY=${TAVILY_API_KEY}
+  #   restart: unless-stopped
+
+  # Load balancer for multiple instances (optional)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: ustad-loadbalancer
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - ustad-mcp
+  #   restart: unless-stopped
+
+networks:
+  default:
+    name: ustad-network
+
+volumes:
+  data:
+    name: ustad-data
+  logs:
+    name: ustad-logs
