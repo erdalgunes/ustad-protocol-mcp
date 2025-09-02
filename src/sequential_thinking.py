@@ -52,10 +52,21 @@ class SequentialThinkingServer:
             if field not in thought_data:
                 raise ValueError(f"Missing required field: {field}")
         
+        # Validate thought content (FIX BUG #1: Empty thoughts)
+        thought_text = thought_data.get("thought", "")
+        if not thought_text or not thought_text.strip():
+            raise ValueError("Thought cannot be empty or just whitespace")
+        
         # Validate thought number
         thought_number = thought_data["thoughtNumber"]
         if thought_number < 1:
             raise ValueError(f"Invalid thought number: {thought_number}, must be >= 1")
+        
+        # Validate revision target exists (FIX BUG #2: Invalid revisions)
+        if thought_data.get("isRevision") and thought_data.get("revisesThought"):
+            target = thought_data["revisesThought"]
+            if not any(t.thought_number == target for t in self.thought_history):
+                raise ValueError(f"Cannot revise non-existent thought {target}")
         
         # Create ThoughtData object
         thought = ThoughtData(

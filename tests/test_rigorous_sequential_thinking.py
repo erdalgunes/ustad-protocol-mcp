@@ -31,7 +31,7 @@ class TestRigorousSequentialThinking:
         }
         
         # Act & Assert: Should raise or handle gracefully
-        with pytest.raises(ValueError, match="thought"):
+        with pytest.raises(ValueError, match="empty or just whitespace"):
             server.process_thought(empty_thought)
     
     def test_thought_number_zero_rejected(self):
@@ -164,13 +164,9 @@ class TestRigorousSequentialThinking:
             "revisesThought": 999  # Non-existent thought
         }
         
-        # This should either raise an error or handle gracefully
-        # The current implementation doesn't validate this - BUG!
-        result = server.process_thought(invalid_revision)
-        
-        # Assert: The revision is tracked but references invalid thought
-        assert result["revisesThought"] == 999
-        # This reveals a bug - no validation of revision targets!
+        # This should raise an error (BUG FIXED!)
+        with pytest.raises(ValueError, match="Cannot revise non-existent thought 999"):
+            server.process_thought(invalid_revision)
     
     def test_branch_isolation(self):
         """Branches should be isolated from main history"""
