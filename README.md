@@ -1,10 +1,12 @@
-# 🏆 Perfect Collaborative Batch of Thought MCP
+# 🎓 Ustad - The Master Teacher MCP
 
 **Multi-round collaborative AI dialogue where 8 perspectives debate, challenge each other, and reach true consensus.**
 
-## 🧠 What Makes This Perfect
+> "Ustad" means "master" or "teacher" in Turkish/Urdu. This MCP is your master teacher, guiding you through complex problems with collaborative wisdom.
 
-Unlike simple parallel thinking, this implements **true collaborative intelligence**:
+## 🧠 What Makes Ustad Special
+
+Unlike simple parallel thinking, Ustad implements **true collaborative intelligence**:
 
 - **Multi-Round Dialogue**: Perspectives actually talk to each other across rounds
 - **Real Consensus**: Structured debate leading to genuine agreement
@@ -26,15 +28,15 @@ pip install -r requirements.txt
 
 ### 3. Add to Claude Code
 ```bash
-claude mcp add /Users/erdalgunes/batch-of-thought-mcp
+claude mcp add /Users/erdalgunes/ustad
 ```
 
 ### 4. Use in Claude Code
 ```
-Use perfect_think to analyze: "How do we balance technical debt with feature delivery?"
+Use ustad_think to analyze: "How do we balance technical debt with feature delivery?"
 ```
 
-## 🗣️ How It Works
+## 🗣️ How Ustad Teaches
 
 ### Round 1: Initial Perspectives
 - 8 AI perspectives think independently about the problem
@@ -69,4 +71,4 @@ Use perfect_think to analyze: "How do we balance technical debt with feature del
 
 ---
 
-**This is collaborative artificial intelligence. The perspectives don't just think in parallel - they actually think together.**
+**The master teaches through dialogue. The apprentice learns through consensus.**

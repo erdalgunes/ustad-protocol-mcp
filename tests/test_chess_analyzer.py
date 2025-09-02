@@ -3,7 +3,7 @@
 import pytest
 from typing import List, Dict
 
-from bot_mcp.chess_analyzer import (
+from ustad.chess_analyzer import (
     ChessPosition,
     ChessMove,
     ChessAnalyzer,

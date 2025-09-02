@@ -57,14 +57,12 @@ class PerfectBotMCPServer:
         """Register all MCP tools."""
         
         @self.server.tool()
-        async def perfect_think(
+        async def ustad_think(
             problem: str,
-            context: str = "",
-            num_thoughts: int = 8,
-            perspectives: Optional[List[str]] = None
+            context: str = ""
         ) -> str:
             """
-            Generate intelligent parallel thoughts using perfect BoT.
+            Let the master teacher guide you through complex problems with collaborative wisdom.
             
             This is the main tool that replaces sequential thinking with
             genuinely intelligent parallel analysis from multiple perspectives.
@@ -107,7 +105,7 @@ class PerfectBotMCPServer:
                 return json.dumps(result, indent=2)
                 
             except Exception as e:
-                logger.error(f"Error in perfect_think: {e}")
+                logger.error(f"Error in ustad_think: {e}")
                 return json.dumps({
                     "error": str(e),
                     "problem": problem

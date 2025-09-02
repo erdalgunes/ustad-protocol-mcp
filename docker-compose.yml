@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  perfect-collaborative-bot:
+    build: .
+    container_name: perfect-collaborative-bot-mcp
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PYTHONPATH=/app/src
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    tty: true
+    volumes:
+      # Mount source for development
+      - ./src:/app/src
+    restart: unless-stopped
+    
+  # HTTP mode version (alternative to stdio)
+  perfect-collaborative-bot-http:
+    build: .
+    container_name: perfect-collaborative-bot-http
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PYTHONPATH=/app/src
+      - MCP_MODE=http
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+    profiles:
+      - http

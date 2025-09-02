@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "bot-mcp"
+name = "ustad"
 version = "0.1.0"
-description = "Batch of Thought MCP server for chess analysis"
+description = "Ustad - The Master Teacher MCP for collaborative AI wisdom"
 authors = ["Bot MCP Team"]
 readme = "README.md"
-packages = [{include = "bot_mcp", from = "src"}]
+packages = [{include = "ustad", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -46,7 +46,7 @@ asyncio_mode = "auto"
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["src/bot_mcp"]
+source = ["src/ustad"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]

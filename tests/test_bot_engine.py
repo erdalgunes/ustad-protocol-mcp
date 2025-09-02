@@ -3,7 +3,7 @@
 import pytest
 from typing import List
 
-from bot_mcp.bot_engine import (
+from ustad.bot_engine import (
     Thought,
     ThoughtBatch,
     BotEngine,

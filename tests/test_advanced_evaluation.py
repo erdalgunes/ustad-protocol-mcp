@@ -4,7 +4,7 @@ import pytest
 import chess
 from typing import Dict, List
 
-from bot_mcp.advanced_evaluation import (
+from ustad.advanced_evaluation import (
     PieceSquareTables,
     AdvancedEvaluator,
     MinimaxSearcher,

@@ -477,7 +477,7 @@ class PerfectCollaborativeBatchOfThought:
         
         return final_synthesis
     
-    async def think(self, problem: str, context: str = "") -> Dict[str, Any]:
+    async def think(self, problem: str, context: str = "", num_thoughts: int = None) -> Dict[str, Any]:
         """
         Perfect collaborative thinking through multi-round dialogue.
         
@@ -487,12 +487,31 @@ class PerfectCollaborativeBatchOfThought:
         3. Round 2: Perspectives challenge each other
         4. Round 3: Build consensus through dialogue
         5. Round 4: Final synthesis (if complex problem)
+        
+        Args:
+            problem: The problem to analyze
+            context: Additional context for the problem
+            num_thoughts: Optional override for number of perspectives (3-8)
         """
         start_time = time.time()
         
         # Step 1: Analyze problem
         analysis = self.analyzer.analyze_problem(problem, context)
         perspectives = analysis["optimal_perspectives"]
+        
+        # Override perspective count if specified
+        if num_thoughts is not None:
+            num_thoughts = max(3, min(8, num_thoughts))  # Clamp to valid range
+            if num_thoughts != len(perspectives):
+                # Adjust perspectives to match requested count
+                if num_thoughts > len(perspectives):
+                    # Add more perspectives if needed
+                    all_perspectives = list(PerspectiveType)
+                    remaining = [p for p in all_perspectives if p not in perspectives]
+                    perspectives.extend(remaining[:num_thoughts - len(perspectives)])
+                else:
+                    # Use top N perspectives if too many
+                    perspectives = perspectives[:num_thoughts]
         
         # Initialize dialogue tracking
         all_rounds = []

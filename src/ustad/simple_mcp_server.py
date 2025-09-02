@@ -12,14 +12,14 @@ from .perfect_collaborative_bot import PerfectCollaborativeBatchOfThought
 
 
 # Create the MCP server
-app = Server("perfect-collaborative-bot")
+app = Server("ustad")
 
 # Initialize the BoT system
 bot = None
 
 
 @app.call_tool()
-async def perfect_think(problem: str, context: str = "", num_thoughts: int = 8) -> str:
+async def ustad_think(problem: str, context: str = "", num_thoughts: int = 8) -> str:
     """
     Multi-round collaborative dialogue where 8 AI perspectives debate, 
     challenge each other, and reach consensus through structured discussion.
@@ -46,7 +46,7 @@ async def perfect_think(problem: str, context: str = "", num_thoughts: int = 8) 
 async def main():
     """Run the MCP server."""
     async with stdio_server() as streams:
-        await app.run(*streams)
+        await app.run(*streams, initialization_options={})
 
 
 if __name__ == "__main__":
