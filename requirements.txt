@@ -1,6 +1,5 @@
-chess>=1.10.0
-mcp>=1.0.0
-asyncio>=3.4.3
+mcp
+asyncio
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
 pytest-cov>=4.1.0
