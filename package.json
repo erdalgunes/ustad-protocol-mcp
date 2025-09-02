@@ -9,32 +9,33 @@
     "install-deps": "pip install -r requirements.txt"
   },
   "mcp": {
-    "name": "Batch of Thought",
-    "description": "Parallel thinking from 8 perspectives - replaces sequential thinking for the Quetiapine Protocol",
+    "name": "Perfect Collaborative Batch of Thought",
+    "description": "Multi-round collaborative AI dialogue - 8 perspectives debate and reach consensus through structured dialogue",
     "command": "python",
     "args": ["-m", "bot_mcp.perfect_mcp_server"],
     "env": {
-      "PYTHONPATH": "./src"
+      "PYTHONPATH": "./src",
+      "OPENAI_API_KEY": "${OPENAI_API_KEY}"
     },
     "tools": [
       {
-        "name": "batch_think",
-        "description": "Generate parallel thoughts from multiple perspectives on any problem",
+        "name": "perfect_think",
+        "description": "Multi-round collaborative dialogue where 8 AI perspectives debate, challenge each other, and reach consensus through structured discussion",
         "inputSchema": {
           "type": "object",
           "properties": {
             "problem": {
               "type": "string",
-              "description": "The problem or question to think about"
+              "description": "The problem or question to analyze collaboratively"
             },
             "context": {
               "type": "string",
-              "description": "Additional context or constraints",
+              "description": "Additional context, constraints, or requirements",
               "default": ""
             },
             "num_thoughts": {
               "type": "integer",
-              "description": "Number of parallel thoughts to generate",
+              "description": "Number of perspectives (max 8 for optimal dialogue)",
               "default": 8
             },
             "perspectives": {
@@ -42,7 +43,7 @@
               "items": {
                 "type": "string"
               },
-              "description": "Optional specific perspectives to use"
+              "description": "Optional specific perspectives (analytical, creative, critical, practical, strategic, empirical, intuitive, systematic)"
             }
           },
           "required": ["problem"]
