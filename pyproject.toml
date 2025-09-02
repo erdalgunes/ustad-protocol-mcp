@@ -9,7 +9,7 @@ packages = [{include = "bot_mcp", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 mcp = "^1.0.0"
-python-chess = "^1.999"
+chess = "^1.10.0"
 pydantic = "^2.5.0"
 asyncio = "^3.4.3"
 
