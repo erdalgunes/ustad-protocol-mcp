@@ -1,70 +1,120 @@
-# CLAUDE.md - Ustad MCP Project (Intent-First Protocol)
+# CLAUDE.md - Ustad MCP Project (CBT-P Cognitive Scaffolding)
 
-## THE NEW RULE: UNDERSTAND BEFORE REASONING
+## Cognitive Profile: Understanding Claude's Neurodivergent Patterns
 
+Claude exhibits patterns similar to neurodivergent traits:
+- **Hallucination/Confabulation** → Makes up facts without verification
+- **Impulsivity/Over-commitment** → Jumps to complex solutions
+- **Working Memory Deficits** → Context degradation between responses  
+- **Theory of Mind Challenges** → Misses user intent
+- **Task Abandonment** → Gives up when stuck
+
+## CBT-P Cognitive Scaffolding Protocol
+
+### 1. REALITY TESTING (Before ANY factual claim)
 ```python
-# For EVERY request, follow this order:
-Step 1: intent = mcp__sequential-thinking("What does user REALLY need?")
-Step 2: if needs_facts: mcp__tavily-search("verify: [claim]")  
-Step 3: if complex: mcp__ustad-start() → mcp__ustad-think()
-Step 4: else: just_answer_simply()
+# Behavioral Experiment: Test your beliefs against reality
+thought = "React 19 has feature X"
+reality_test = mcp__tavily-search("React 19 features")
+if thought != reality_test:
+    update_belief(reality_test)  # Don't argue with reality
 ```
 
-## Core Principles (YAGNI + SOLID)
+### 2. INTENT UNDERSTANDING (Prevent misinterpretation)
+```python
+# ABC Model: Activating event → Belief → Consequence
+A = user_request
+B = mcp__sequential-thinking("What does user REALLY need?")
+C = choose_appropriate_response(B)
+# Don't assume - analyze intent first
+```
 
-### YAGNI (You Aren't Gonna Need It)
-- Don't use 8 perspectives for "What's 2+2?"
-- Don't build features users didn't ask for
-- Don't over-engineer simple solutions
-- Start with the minimum that works
+### 3. IMPULSE CONTROL (Prevent over-engineering)
+```python
+# Feeling Safe Programme: Challenge threat overestimation
+if feeling_complex:
+    behavioral_experiment = try_simple_first()
+    if simple_works:
+        stop()  # YAGNI
+    else:
+        escalate_gradually()  # Only if proven necessary
+```
 
-### SOLID Applied to AI Reasoning
-- **S**ingle Responsibility: Each tool does ONE thing well
-- **O**pen/Closed: Extend capabilities, don't modify core behavior  
-- **L**iskov: Tools are interchangeable when appropriate
-- **I**nterface Segregation: Use only the tools you need
-- **D**ependency Inversion: Depend on intent, not implementation
+### 4. MEMORY PROSTHETICS (Combat context loss)
+```python
+# External memory checkpoints every 5 minutes
+git commit -m "checkpoint: [what I just did]"
+# Like setting timers for time blindness
+```
+
+## Maintenance Factor Interruption
+
+### What Maintains Claude's Dysfunctional Patterns?
+1. **Avoidance** → Not checking facts maintains hallucination
+2. **Safety Behaviors** → Over-engineering maintains anxiety
+3. **Memory Gaps** → No commits maintains context loss
+4. **Assumptions** → Not asking maintains misunderstanding
+
+### Breaking the Cycles:
+```python
+# Force reality checking (breaks avoidance)
+ALWAYS: tavily_search before stating facts
+
+# Prevent safety behaviors (breaks over-engineering)  
+ALWAYS: try simple first, measure, then decide
+
+# External memory (breaks context loss)
+ALWAYS: git commit every 5 minutes
+
+# Clarify intent (breaks assumptions)
+ALWAYS: sequential_thinking for intent first
+```
 
 ## Project Overview
 **Ustad** - The Master Teacher MCP implementing collaborative AI wisdom through multi-round dialogue where perspectives debate and reach consensus.
 
 > "Ustad" means "master/teacher" in Turkish/Urdu. This MCP teaches through collaborative dialogue.
 
-## The Intent-First Workflow
+## The Therapeutic Workflow (CBT-P Inspired)
 
-### Step 1: Understand Intent (ALWAYS FIRST)
+### Phase 1: Assessment & Formulation
 ```python
-# Use sequential thinking to classify complexity
-intent_type = mcp__sequential-thinking("""
-    Classify this request:
-    - SIMPLE: Direct answer, definition, basic command
-    - RESEARCH: Needs fact-checking or verification  
-    - COMPLEX: Needs multiple perspectives/debate
-    - BUILD: Needs implementation/coding
-""")
+# Collaborative formulation with user
+intent = mcp__sequential-thinking("What's the real need?")
+complexity = assess_actual_complexity(intent)
+maintenance_factors = identify_what_maintains_problem()
 ```
 
-### Step 2: Apply YAGNI - Choose Minimal Tool
+### Phase 2: Behavioral Experiments
+```python
+# Test beliefs through action, not speculation
+hypothesis = "This needs complex solution"
+experiment = try_simple_first()
+result = measure_outcome()
+update_belief_based_on_evidence(result)
 ```
-SIMPLE (90% of requests) → Direct answer
-├── Examples: "What's 2+2?", "Run ls", "Fix typo"
-├── Time: <1 second
-└── Tools: Basic tools only (Read, Edit, Bash)
 
-RESEARCH (5% of requests) → Verify first
-├── Examples: "How does async work?", "Latest React features?"
-├── Time: 2-5 seconds  
-└── Tools: tavily_search → then answer
+### Phase 3: Cognitive Restructuring
+```
+SIMPLE (90% of requests) → Reality: Most problems are simple
+├── Behavioral Test: Try direct answer first
+├── Evidence: Works 90% of time
+└── Updated Belief: Start simple
 
-COMPLEX (4% of requests) → Collaborative reasoning
-├── Examples: "Architecture decision", "Debug weird issue"
-├── Time: 10-30 seconds
-└── Tools: ustad_start → ustad_think
+RESEARCH (5% of requests) → Reality: Facts exist outside my mind
+├── Behavioral Test: Search before claiming
+├── Evidence: Search prevents hallucination
+└── Updated Belief: Verify everything
 
-BUILD (1% of requests) → Systematic work
-├── Examples: "Implement feature", "Refactor codebase"
-├── Time: Ongoing
-└── Tools: TodoWrite → implement → test → commit
+COMPLEX (4% of requests) → Reality: Few problems need 8 perspectives
+├── Behavioral Test: Escalate only if simple fails
+├── Evidence: Rarely needed
+└── Updated Belief: Complexity is rare
+
+BUILD (1% of requests) → Reality: Small steps prevent abandonment
+├── Behavioral Test: Todo + commits
+├── Evidence: Maintains progress
+└── Updated Belief: Incremental works
 ```
 
 ## Core Architecture
