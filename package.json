@@ -1,0 +1,113 @@
+{
+  "name": "batch-of-thought-mcp",
+  "version": "1.0.0",
+  "description": "Batch of Thought MCP server for advanced chess analysis",
+  "main": "index.js",
+  "scripts": {
+    "start": "python -m bot_mcp.mcp_server",
+    "test": "python -m pytest tests/ -v",
+    "install-deps": "pip install -r requirements.txt"
+  },
+  "mcp": {
+    "name": "Batch of Thought Chess",
+    "description": "Advanced chess analysis using parallel evaluation threads",
+    "command": "python",
+    "args": ["-m", "bot_mcp.mcp_server"],
+    "env": {
+      "PYTHONPATH": "./src"
+    },
+    "tools": [
+      {
+        "name": "analyze_position",
+        "description": "Analyze a chess position using 5 parallel BoT threads",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fen": {
+              "type": "string",
+              "description": "FEN string of the chess position"
+            }
+          },
+          "required": ["fen"]
+        }
+      },
+      {
+        "name": "find_best_move",
+        "description": "Find the best move using minimax with alpha-beta pruning",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fen": {
+              "type": "string",
+              "description": "FEN string of the chess position"
+            },
+            "depth": {
+              "type": "integer",
+              "description": "Search depth (default 3)",
+              "default": 3
+            }
+          },
+          "required": ["fen"]
+        }
+      },
+      {
+        "name": "compare_moves",
+        "description": "Compare multiple candidate moves in a position",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fen": {
+              "type": "string",
+              "description": "FEN string of the chess position"
+            },
+            "moves": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of moves to compare (UCI format)"
+            }
+          },
+          "required": ["fen", "moves"]
+        }
+      },
+      {
+        "name": "soviet_chess_coach",
+        "description": "Get Soviet-style chess coaching advice",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fen": {
+              "type": "string",
+              "description": "FEN string of the chess position"
+            },
+            "player_color": {
+              "type": "string",
+              "description": "Color the player is playing",
+              "enum": ["white", "black"],
+              "default": "white"
+            }
+          },
+          "required": ["fen"]
+        }
+      },
+      {
+        "name": "play_bot_move",
+        "description": "Have the BoT engine play a move in the position",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fen": {
+              "type": "string",
+              "description": "Current position FEN"
+            }
+          },
+          "required": ["fen"]
+        }
+      }
+    ]
+  },
+  "keywords": ["mcp", "chess", "batch-of-thought", "ai", "analysis"],
+  "author": "",
+  "license": "MIT"
+}
