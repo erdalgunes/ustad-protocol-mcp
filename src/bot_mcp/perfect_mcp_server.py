@@ -27,7 +27,7 @@ except ImportError:
                 return func
             return decorator
 
-from .openai_bot import OpenAIMCPServer, PerspectiveType
+from .perfect_collaborative_bot import PerfectCollaborativeBatchOfThought, PerspectiveType
 
 # Configure logging
 logging.basicConfig(
@@ -43,14 +43,14 @@ class PerfectBotMCPServer:
     def __init__(self):
         """Initialize the perfect server."""
         self.server = Server("perfect-batch-of-thought")
-        self.bot = OpenAIMCPServer()
+        self.bot = PerfectCollaborativeBatchOfThought()
         self.history = []  # Store thinking history for learning
         self.feedback_db = {}  # Store feedback for improvement
         
         # Register all tools
         self._register_tools()
         
-        logger.info("Perfect BoT MCP Server initialized with OpenAI backend")
+        logger.info("Perfect BoT MCP Server initialized with Collaborative AI backend")
     
     def _register_tools(self):
         """Register all MCP tools."""
@@ -78,11 +78,10 @@ class PerfectBotMCPServer:
                 JSON with intelligent analysis from multiple perspectives
             """
             try:
-                logger.info(f"Perfect think: {problem[:50]}...")
+                logger.info(f"Perfect collaborative think: {problem[:50]}...")
                 
-                # Use OpenAI backend for real AI thinking
-                result_json = await self.bot.think(problem, context, num_thoughts)
-                result = json.loads(result_json)
+                # Use Perfect Collaborative backend for true multi-round dialogue
+                result = await self.bot.think(problem, context)
                 
                 # Store in history for learning
                 self.history.append({
@@ -95,11 +94,13 @@ class PerfectBotMCPServer:
                 if "metadata" not in result:
                     result["metadata"] = {}
                 result["metadata"].update({
-                    "version": "3.0",
-                    "engine": "openai-gpt-3.5-turbo",
+                    "version": "4.0",
+                    "engine": "collaborative-gpt-3.5-turbo",
                     "timestamp": datetime.now().isoformat(),
-                    "parallel_execution": True,
-                    "real_ai": True
+                    "multi_round_dialogue": True,
+                    "real_consensus": True,
+                    "adaptive_prompts": True,
+                    "truly_perfect": True
                 })
                 
                 return json.dumps(result, indent=2)
