@@ -9,8 +9,9 @@ from datetime import datetime
 import tempfile
 import json
 
-from src.ustad.anti_patterns.base import PatternDetectionEngine, PatternAlert, PatternSeverity
-from tests.test_framework import AntiPatternTestSuite, create_default_test_scenarios
+# Commented out unused imports for now
+# from src.ustad.anti_patterns.base import PatternDetectionEngine, PatternAlert, PatternSeverity
+# from tests.test_framework import AntiPatternTestSuite, create_default_test_scenarios
 
 
 @pytest.fixture(scope="session")
@@ -135,13 +136,13 @@ pytestmark = [
 
 
 # Custom assertion helpers
-def assert_pattern_detected(alerts: List[PatternAlert], expected_pattern: str):
+def assert_pattern_detected(alerts: List[Any], expected_pattern: str):
     """Assert that a specific pattern was detected."""
     pattern_types = [alert.pattern_type for alert in alerts]
     assert expected_pattern in pattern_types, f"Expected pattern '{expected_pattern}' not found in {pattern_types}"
 
 
-def assert_confidence_above(alerts: List[PatternAlert], min_confidence: float):
+def assert_confidence_above(alerts: List[Any], min_confidence: float):
     """Assert that alerts have confidence above threshold."""
     for alert in alerts:
         assert alert.confidence >= min_confidence, f"Alert confidence {alert.confidence} below minimum {min_confidence}"
