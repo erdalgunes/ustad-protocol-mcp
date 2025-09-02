@@ -1,143 +1,148 @@
-# Batch of Thought MCP Server for Chess Analysis 🤖♟️
+# Batch of Thought MCP Server 🧠
 
-Advanced chess analysis using parallel evaluation threads, inspired by Soviet chess school principles.
+Generic parallel thinking system for the Quetiapine Protocol - replaces sequential thinking with 8 concurrent perspectives.
 
-## Features
+## What is Batch of Thought?
 
-- **5 Parallel Evaluation Threads**: Material, Tactical, Positional, Safety, and Dynamic analysis
-- **Minimax Search**: With alpha-beta pruning up to depth 4
-- **Piece-Square Tables**: Positional evaluation for all pieces
-- **Soviet Chess Coach**: Get advice in the style of Botvinnik, Tal, Petrosian, and Karpov
-- **Proven Strength**: Drew against Stockfish 1400 ELO!
+Instead of thinking sequentially (one thought after another), BoT generates multiple thoughts in parallel from different perspectives, then synthesizes them for better decision-making. This is part of the Quetiapine Protocol for managing AI neurodivergent-like patterns.
 
 ## Installation
 
-### For Claude Code
-
-1. Install the MCP server:
 ```bash
+# For Claude Code
 claude mcp add /Users/erdalgunes/batch-of-thought-mcp
+
+# Restart Claude Code after installation
 ```
 
-2. Restart Claude Code to load the new MCP server.
+## The 8 Thinking Perspectives
 
-### Manual Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/batch-of-thought-mcp.git
-cd batch-of-thought-mcp
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Add to Claude Code configuration:
-```bash
-claude mcp add ./batch-of-thought-mcp
-```
+1. **Analytical** - Break down problems systematically
+2. **Creative** - Think outside the box, unconventional solutions  
+3. **Critical** - Question assumptions, identify risks
+4. **Practical** - Focus on implementation and feasibility
+5. **Strategic** - Long-term implications and goals
+6. **Empirical** - Data-driven, evidence-based thinking
+7. **Intuitive** - Pattern recognition and insights
+8. **Systematic** - Follow established procedures
 
 ## Available Tools
 
-### `analyze_position`
-Analyzes a chess position using 5 parallel BoT threads.
+### `batch_think`
+Generate parallel thoughts on any problem:
 ```json
 {
-  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  "problem": "How can we improve code review processes?",
+  "context": "Team of 10 developers, 2-week sprints",
+  "num_thoughts": 8
 }
 ```
 
-### `find_best_move`
-Finds the best move using minimax search with alpha-beta pruning.
+### `iterative_think`
+Refine thinking through iterations:
 ```json
 {
-  "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-  "depth": 4
+  "problem": "Design a scalable authentication system",
+  "max_iterations": 3,
+  "convergence_threshold": 0.8
 }
 ```
 
-### `compare_moves`
-Compares multiple candidate moves in a position.
+### `compare_perspectives`
+See how different perspectives approach a problem:
 ```json
 {
-  "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
-  "moves": ["e7e5", "c7c5", "e7e6"]
+  "problem": "Should we migrate to microservices?",
+  "perspectives": ["Practical", "Strategic", "Critical"]
 }
 ```
 
-### `soviet_chess_coach`
-Get Soviet-style chess coaching advice.
+### `get_perspectives`
+List all available thinking perspectives.
+
+### `custom_scored_think`
+Think with custom scoring weights:
 ```json
 {
-  "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1",
-  "player_color": "white"
+  "problem": "Optimize database queries",
+  "scoring_criteria": {
+    "relevance": 0.4,
+    "practicality": 0.3,
+    "depth": 0.2,
+    "coherence": 0.05,
+    "innovation": 0.05
+  }
 }
 ```
 
-### `play_bot_move`
-Have the BoT engine play a move.
-```json
-{
-  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-}
+## How It Replaces Sequential Thinking
+
+### Traditional Sequential Thinking:
+```
+Thought 1 → Thought 2 → Thought 3 → Conclusion
 ```
 
-## How It Works
+### Batch of Thought:
+```
+        ┌→ Analytical ─┐
+        ├→ Creative ───┤
+        ├→ Critical ───┤
+Problem ├→ Practical ──┼→ Synthesis → Best Solution
+        ├→ Strategic ──┤
+        ├→ Empirical ──┤
+        ├→ Intuitive ──┤
+        └→ Systematic ─┘
+```
 
-The Batch of Thought (BoT) approach uses 5 parallel evaluation threads:
+## Example Usage in Claude Code
 
-1. **Material Thread (Tal)**: Focuses on material balance and tactics
-2. **Positional Thread (Petrosian)**: Evaluates pawn structure and piece placement
-3. **Tactical Thread (Kasparov)**: Looks for combinations and attacks
-4. **Safety Thread (Karpov)**: Prioritizes king safety and solid play
-5. **Dynamic Thread (Botvinnik)**: Balances all factors
+```
+Use batch_think to analyze: "What's the best architecture for a real-time chat application?"
 
-Each thread evaluates positions independently, then votes on the best move. This consensus approach provides more robust analysis than single-threaded evaluation.
+Use iterative_think to solve: "How do we reduce our AWS costs by 30%?"
+
+Use compare_perspectives with ["Critical", "Practical", "Strategic"] for: "Should we adopt Rust for our backend?"
+```
+
+## Quetiapine Protocol Integration
+
+This MCP server is part of the Quetiapine Protocol v7.0, addressing AI neurodivergent-like patterns:
+
+- **Anti-impulsivity**: Parallel thinking prevents jumping to conclusions
+- **Anti-hallucination**: Multiple perspectives cross-validate each other
+- **Anti-over-engineering**: Practical and Critical perspectives balance Creative
+- **Context preservation**: Iterative thinking maintains context across iterations
 
 ## Performance
 
-- Successfully drew against Stockfish 1400 ELO
-- Finds tactical shots like back rank mates
-- Evaluates positions in under 1 second at depth 3
-- 99% test coverage with comprehensive test suite
+- Generates 8 parallel thoughts in <100ms
+- Supports custom scoring criteria
+- Iterative refinement for complex problems
+- Thread-safe parallel execution
 
-## Testing
+## Requirements
 
-Run the test suite:
-```bash
-python -m pytest tests/ -v
-```
-
-Run with coverage:
-```bash
-python -m pytest --cov=bot_mcp --cov-report=term-missing
-```
+- Python 3.11+
+- MCP SDK
+- See requirements.txt for full list
 
 ## Development
 
-The project follows Test-Driven Development (TDD) principles:
-1. Write tests first
-2. Implement functionality to pass tests
-3. Refactor while keeping tests green
-4. Each feature has atomic git commits
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-## Soviet Chess Philosophy
+# Run tests
+python -m pytest tests/ -v
 
-*"Развивай фигуры с темпом!"* (Develop pieces with tempo!)
-
-The engine follows classical Soviet chess principles:
-- Control the center with pawns
-- Develop pieces toward the center
-- King safety before attacking
-- Create pawn chains and space advantage
-- Tactical awareness in every position
+# Start server manually
+python -m bot_mcp.bot_mcp_server
+```
 
 ## License
 
 MIT
 
-## Credits
+---
 
-Developed using the Quetiapine Protocol for AI enhancement and the Batch of Thought approach for parallel evaluation.
+*"Parallel thoughts, better decisions"* - Quetiapine Protocol v7.0

@@ -1,113 +1,149 @@
 {
   "name": "batch-of-thought-mcp",
-  "version": "1.0.0",
-  "description": "Batch of Thought MCP server for advanced chess analysis",
+  "version": "2.0.0",
+  "description": "Generic Batch of Thought MCP server for parallel thinking - Quetiapine Protocol",
   "main": "index.js",
   "scripts": {
-    "start": "python -m bot_mcp.mcp_server",
+    "start": "python -m bot_mcp.bot_mcp_server",
     "test": "python -m pytest tests/ -v",
     "install-deps": "pip install -r requirements.txt"
   },
   "mcp": {
-    "name": "Batch of Thought Chess",
-    "description": "Advanced chess analysis using parallel evaluation threads",
+    "name": "Batch of Thought",
+    "description": "Parallel thinking from 8 perspectives - replaces sequential thinking for the Quetiapine Protocol",
     "command": "python",
-    "args": ["-m", "bot_mcp.mcp_server"],
+    "args": ["-m", "bot_mcp.bot_mcp_server"],
     "env": {
       "PYTHONPATH": "./src"
     },
     "tools": [
       {
-        "name": "analyze_position",
-        "description": "Analyze a chess position using 5 parallel BoT threads",
+        "name": "batch_think",
+        "description": "Generate parallel thoughts from multiple perspectives on any problem",
         "inputSchema": {
           "type": "object",
           "properties": {
-            "fen": {
+            "problem": {
               "type": "string",
-              "description": "FEN string of the chess position"
-            }
-          },
-          "required": ["fen"]
-        }
-      },
-      {
-        "name": "find_best_move",
-        "description": "Find the best move using minimax with alpha-beta pruning",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "fen": {
-              "type": "string",
-              "description": "FEN string of the chess position"
+              "description": "The problem or question to think about"
             },
-            "depth": {
+            "context": {
+              "type": "string",
+              "description": "Additional context or constraints",
+              "default": ""
+            },
+            "num_thoughts": {
               "type": "integer",
-              "description": "Search depth (default 3)",
-              "default": 3
-            }
-          },
-          "required": ["fen"]
-        }
-      },
-      {
-        "name": "compare_moves",
-        "description": "Compare multiple candidate moves in a position",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "fen": {
-              "type": "string",
-              "description": "FEN string of the chess position"
+              "description": "Number of parallel thoughts to generate",
+              "default": 8
             },
-            "moves": {
+            "perspectives": {
               "type": "array",
               "items": {
                 "type": "string"
               },
-              "description": "List of moves to compare (UCI format)"
+              "description": "Optional specific perspectives to use"
             }
           },
-          "required": ["fen", "moves"]
+          "required": ["problem"]
         }
       },
       {
-        "name": "soviet_chess_coach",
-        "description": "Get Soviet-style chess coaching advice",
+        "name": "iterative_think",
+        "description": "Think iteratively, refining thoughts based on previous insights",
         "inputSchema": {
           "type": "object",
           "properties": {
-            "fen": {
+            "problem": {
               "type": "string",
-              "description": "FEN string of the chess position"
+              "description": "The problem to solve"
             },
-            "player_color": {
+            "context": {
               "type": "string",
-              "description": "Color the player is playing",
-              "enum": ["white", "black"],
-              "default": "white"
+              "description": "Initial context",
+              "default": ""
+            },
+            "max_iterations": {
+              "type": "integer",
+              "description": "Maximum thinking iterations",
+              "default": 3
+            },
+            "convergence_threshold": {
+              "type": "number",
+              "description": "Score threshold for convergence",
+              "default": 0.8
             }
           },
-          "required": ["fen"]
+          "required": ["problem"]
         }
       },
       {
-        "name": "play_bot_move",
-        "description": "Have the BoT engine play a move in the position",
+        "name": "compare_perspectives",
+        "description": "Compare how different thinking perspectives approach a problem",
         "inputSchema": {
           "type": "object",
           "properties": {
-            "fen": {
+            "problem": {
               "type": "string",
-              "description": "Current position FEN"
+              "description": "The problem to analyze"
+            },
+            "perspectives": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of perspective names to compare"
+            },
+            "context": {
+              "type": "string",
+              "description": "Additional context",
+              "default": ""
             }
           },
-          "required": ["fen"]
+          "required": ["problem", "perspectives"]
+        }
+      },
+      {
+        "name": "get_perspectives",
+        "description": "Get list of all available thinking perspectives",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
+      },
+      {
+        "name": "custom_scored_think",
+        "description": "Think with custom scoring criteria for thought evaluation",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "problem": {
+              "type": "string",
+              "description": "The problem to think about"
+            },
+            "context": {
+              "type": "string",
+              "description": "Additional context",
+              "default": ""
+            },
+            "scoring_criteria": {
+              "type": "object",
+              "description": "Custom weights for scoring (must sum to 1.0)",
+              "properties": {
+                "relevance": {"type": "number"},
+                "coherence": {"type": "number"},
+                "depth": {"type": "number"},
+                "practicality": {"type": "number"},
+                "innovation": {"type": "number"}
+              }
+            }
+          },
+          "required": ["problem"]
         }
       }
     ]
   },
-  "keywords": ["mcp", "chess", "batch-of-thought", "ai", "analysis"],
+  "keywords": ["mcp", "batch-of-thought", "parallel-thinking", "quetiapine-protocol", "ai"],
   "author": "",
   "license": "MIT"
 }
