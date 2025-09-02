@@ -266,8 +266,11 @@ class ChessAnalyzer:
         # Select best move
         legal_moves = position.get_legal_moves()
         if legal_moves:
+            # Pick a random legal move for now (should use thoughts later)
+            import random
+            selected_move = random.choice(legal_moves)
             best_move = ChessMove(
-                uci=legal_moves[0],
+                uci=selected_move,
                 evaluation=self.evaluator.evaluate(position),
             )
         else:
