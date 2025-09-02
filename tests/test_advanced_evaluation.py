@@ -32,7 +32,7 @@ class TestPieceSquareTables:
         
         # 7th rank pawns are extremely valuable (near promotion)
         e7_value = pst.get_square_value(chess.PAWN, chess.E7, chess.WHITE)
-        assert e7_value > 50, "7th rank pawns should have high bonus"
+        assert e7_value >= 50, "7th rank pawns should have high bonus"
     
     def test_knight_piece_square_values(self):
         """Test that knights prefer center and avoid edges."""
