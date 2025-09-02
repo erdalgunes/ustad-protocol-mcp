@@ -1,7 +1,7 @@
 #import "@preview/modern-acm:0.1.0": acm-conf
 
 #show: acm-conf.with(
-  title: "The Ustad Protocol: A Revolutionary AI Reasoning Architecture for Addressing Neurodivergent-Like Patterns Through Collaborative Multi-Perspective Intelligence",
+  title: "The Ustad Protocol: A Research Proposal for Collaborative Multi-Perspective AI Reasoning to Address Neurodivergent-Like Patterns",
   authors: (
     (
       name: "Erdal Gunes",
@@ -11,7 +11,7 @@
     ),
   ),
   abstract: [
-    Large Language Models exhibit patterns analogous to neurodivergent behaviors: hallucination (false confidence), context degradation, over-engineering, impulsivity, and task abandonment. We present the Ustad Protocol, a revolutionary AI reasoning architecture that transforms reactive, isolated responses into proactive, collaborative intelligence through multi-perspective batch reasoning with persistent intent understanding. Our protocol orchestrates structured dialogue between 8 specialized AI perspectives (analytical, creative, critical, practical, strategic, empirical, intuitive, systematic) across 4 rounds: initial reasoning, challenge, consensus, and synthesis. Empirical evaluation demonstrates significant improvements: 73% reduction in hallucination rates, 89% improvement in context retention, and 92% task completion rate. The protocol is implemented as an open-source MCP (Model Context Protocol) server, achieving cost-optimized performance at ~$0.008 per complex analysis. This work represents a paradigm shift from single-agent to collaborative multi-agent reasoning, establishing foundations for more reliable, trustworthy AI systems.
+    Large Language Models exhibit patterns analogous to neurodivergent behaviors: hallucination, context degradation, over-engineering, impulsivity, and task abandonment. We propose the Ustad Protocol, a novel AI reasoning architecture that transforms reactive, isolated responses into proactive, collaborative intelligence through multi-perspective batch reasoning. Our approach orchestrates structured dialogue between 8 specialized AI perspectives across 4 rounds of deliberation. We present the theoretical framework, initial prototype implementation, and proposed evaluation methodology. Preliminary experiments suggest potential for significant improvements in reasoning quality, with expected reductions in hallucination rates and improvements in context retention. We outline a comprehensive research agenda to validate the approach through empirical studies, ablation analyses, and real-world applications. This research proposal aims to establish foundations for more reliable, trustworthy AI systems through collaborative multi-agent reasoning.
   ],
   keywords: ("AI Reasoning", "Multi-Agent Systems", "Collaborative Intelligence", "Neurodivergent Patterns", "LLM Architecture"),
   copyright: "none",
@@ -38,15 +38,16 @@ These failures fundamentally undermine AI reliability and trustworthiness, parti
 
 The current paradigm of single-agent, reactive AI responses fails to leverage the collective intelligence potential of multi-perspective reasoning. Human decision-making benefits from collaborative discourse, diverse viewpoints, and structured deliberation—principles absent in traditional LLM architectures.
 
-== Contributions
+== Research Objectives
 
-We present the following contributions:
+This research proposal aims to:
 
-1. *The Ustad Protocol*: A novel collaborative reasoning architecture implementing multi-round dialogue between specialized AI perspectives
-2. *Persistent Intent Understanding*: Mechanisms for maintaining context and user goals across extended interactions
-3. *Empirical Validation*: Comprehensive evaluation demonstrating significant improvements across all identified failure patterns
-4. *Open-Source Implementation*: Production-ready MCP server enabling immediate adoption
-5. *Theoretical Framework*: Formal analysis of collaborative intelligence emergence in AI systems
+1. *Design and formalize* the Ustad Protocol for collaborative multi-perspective AI reasoning
+2. *Develop* mechanisms for persistent intent understanding across interactions
+3. *Implement* a prototype system for empirical validation
+4. *Evaluate* the approach through comprehensive benchmarks and user studies
+5. *Establish* theoretical foundations for collaborative intelligence in AI systems
+6. *Create* open-source tools enabling community adoption and contribution
 
 = Background and Related Work
 
@@ -127,12 +128,12 @@ The protocol implements a 4-round structured dialogue:
 
 == Implementation Details
 
-=== Cost Optimization
+=== Expected Performance Characteristics
 
-Through careful model selection (GPT-3.5-turbo for perspective generation), we achieve:
-- Average cost: $0.008 per complex analysis
-- Latency: 2-5 seconds for complete dialogue
-- Token efficiency: ~8,000 tokens per full analysis
+Based on preliminary prototyping, we anticipate:
+- Estimated cost: ~$0.008 per complex analysis
+- Expected latency: 2-5 seconds for complete dialogue
+- Projected token usage: ~8,000 tokens per full analysis
 
 === MCP Integration
 
@@ -145,55 +146,74 @@ async def ustad_think(problem: str, context: str = "",
     return synthesize_results(dialogue)
 ```
 
-= Evaluation Rubrics
+= Research Questions and Hypotheses
 
-== Implementation Maturity Rubric
+== Primary Research Questions
+
+1. Can collaborative multi-perspective reasoning significantly reduce hallucination rates in LLMs?
+2. Does structured dialogue between AI perspectives improve context retention?
+3. How does the number of perspectives and dialogue rounds affect reasoning quality?
+4. What is the optimal balance between performance gains and computational costs?
+
+== Hypotheses
+
+*H1*: Multi-perspective collaborative reasoning will reduce hallucination rates by >60% compared to single-agent baselines.
+
+*H2*: Four-round structured dialogue will achieve better consensus than single-round voting mechanisms.
+
+*H3*: Eight diverse perspectives provide optimal coverage without redundancy.
+
+*H4*: The protocol will maintain performance gains across different domains and task types.
+
+= Proposed Evaluation Methodology
+
+== Implementation Roadmap
 
 #table(
   columns: (auto, auto, auto, auto),
   inset: 8pt,
   align: horizon,
-  [*Component*], [*Current Status*], [*Target*], [*Score*],
-  [Core Protocol], [✅ Implemented], [Production-ready], [100%],
-  [Session Persistence], [✅ Implemented], [Cross-session memory], [90%],
-  [Perspective Diversity], [✅ 8 perspectives], [Dynamic selection], [95%],
-  [Dialogue Rounds], [✅ 4 rounds], [Adaptive rounds], [85%],
-  [Intent Understanding], [✅ Basic], [Deep comprehension], [70%],
-  [Research Integration], [✅ Tavily], [Multi-source], [80%],
-  [Context Management], [🔄 Git-based], [Advanced checkpointing], [60%],
-  [Error Recovery], [🔄 Basic], [Self-healing], [50%],
-  [*Overall Maturity*], [], [], [*76.25%*]
+  [*Component*], [*Current Status*], [*Target*], [*Timeline*],
+  [Core Protocol], [🔄 Prototype], [Full implementation], [Month 1-2],
+  [Session Persistence], [📋 Designed], [Working system], [Month 2-3],
+  [Perspective Engine], [✅ 8 perspectives defined], [Dynamic selection], [Month 3-4],
+  [Dialogue System], [🔄 Basic 4 rounds], [Adaptive rounds], [Month 4-5],
+  [Intent Understanding], [📋 Conceptual], [Deep comprehension], [Month 5-6],
+  [Research Integration], [📋 Planned], [Multi-source], [Month 3-4],
+  [Context Management], [📋 Designed], [Advanced checkpointing], [Month 6-7],
+  [Error Recovery], [📋 Planned], [Self-healing], [Month 7-8],
+  [*Phase*], [], [], [*8 months*]
 )
 
-== Performance Metrics Rubric
+== Expected Performance Metrics
 
 #table(
   columns: (auto, auto, auto, auto),
   inset: 8pt,
   align: horizon,
-  [*Metric*], [*Baseline*], [*Current*], [*Improvement*],
-  [Hallucination Rate], [23%], [6%], [↓ 73.9%],
-  [Context Retention], [45%], [85%], [↑ 88.9%],
-  [Task Completion], [67%], [92%], [↑ 37.3%],
-  [Over-Engineering], [High], [Low], [Significant],
-  [Response Latency], [1s], [3.5s], [↑ 250%],
-  [Cost per Query], [$0.002], [$0.008], [↑ 300%],
-  [User Satisfaction], [3.2/5], [4.6/5], [↑ 43.8%]
+  [*Metric*], [*Baseline*], [*Expected*], [*Validation Method*],
+  [Hallucination Rate], [20-25%], [<10%], [Fact-checking benchmark],
+  [Context Retention], [40-50%], [>80%], [Multi-turn dialogue tests],
+  [Task Completion], [65-70%], [>90%], [Task success metrics],
+  [Over-Engineering], [High], [Reduced], [Complexity analysis],
+  [Response Latency], [1s], [3-5s], [Performance monitoring],
+  [Cost per Query], [$0.002], [<$0.01], [Token counting],
+  [User Satisfaction], [Baseline], [>4.5/5], [User studies]
 )
 
-== Research Validation Rubric
+== Research Validation Plan
 
 #table(
   columns: (auto, auto, auto),
   inset: 8pt,
   align: horizon,
-  [*Criterion*], [*Status*], [*Evidence*],
-  [Theoretical Foundation], [✅ Strong], [Cognitive science + multi-agent theory],
-  [Empirical Validation], [🔄 Partial], [Initial benchmarks complete],
-  [Reproducibility], [✅ High], [Open-source implementation],
-  [Peer Review], [⏳ Pending], [Paper in preparation],
-  [Real-world Testing], [✅ Active], [Production deployments],
-  [Community Adoption], [🔄 Growing], [500+ GitHub stars],
+  [*Criterion*], [*Plan*], [*Timeline*],
+  [Theoretical Foundation], [Formalize mathematical framework], [Month 1-2],
+  [Empirical Validation], [Conduct comprehensive experiments], [Month 4-8],
+  [Reproducibility], [Release code and datasets], [Month 6],
+  [Peer Review], [Submit to top-tier conferences], [Month 9],
+  [Real-world Testing], [Partner with organizations], [Month 10-12],
+  [Community Engagement], [Open development process], [Ongoing],
 )
 
 = Addressing Neurodivergent-Like Patterns
@@ -210,7 +230,7 @@ async def verify_claims(claim: str) -> bool:
     return consensus.confidence > THRESHOLD
 ```
 
-Results show 73% reduction in hallucination rates compared to baseline GPT-4.
+We hypothesize this approach will achieve >60% reduction in hallucination rates compared to baseline models.
 
 == Context Degradation Prevention
 
@@ -255,31 +275,37 @@ if error_encountered:
             break
 ```
 
-= Case Studies
+= Proposed Experiments
 
-== Software Engineering: Complex Debugging
+== Experiment 1: Hallucination Reduction
 
-*Scenario*: Race condition in distributed cache system
+*Objective*: Measure reduction in factual errors
 
-*Traditional Approach*: Single-threaded analysis, missed edge cases
+*Methodology*:
+- Dataset: TruthfulQA and custom fact-checking benchmarks
+- Baselines: GPT-4, Claude, single-agent CoT
+- Metrics: Accuracy, false positive rate, confidence calibration
+- Sample size: 1,000 queries across 10 domains
 
-*Ustad Protocol Result*:
-- Analytical: Identified timing dependencies
-- Critical: Found untested error paths  
-- Systematic: Mapped component interactions
-- *Solution*: Comprehensive fix addressing root cause
+== Experiment 2: Context Retention
 
-== Research Synthesis
+*Objective*: Evaluate multi-turn dialogue coherence
 
-*Scenario*: Literature review on quantum-classical hybrid algorithms
+*Methodology*:
+- Dataset: Multi-turn dialogue tasks
+- Baselines: Standard LLMs with context windows
+- Metrics: Context preservation score, entity tracking
+- Sample size: 500 dialogue sessions
 
-*Traditional Approach*: Surface-level summaries, missed connections
+== Experiment 3: Ablation Study
 
-*Ustad Protocol Result*:
-- Empirical: Extracted performance metrics
-- Creative: Identified novel combinations
-- Strategic: Mapped research trajectories
-- *Output*: Deep synthesis revealing research gaps
+*Objective*: Determine optimal configuration
+
+*Variables to test*:
+- Number of perspectives (4, 6, 8, 10)
+- Number of rounds (2, 3, 4, 5)
+- Perspective selection strategies
+- Consensus mechanisms
 
 = Limitations and Future Work
 
@@ -297,9 +323,20 @@ if error_encountered:
 - *Multilingual support*: Extending to non-English contexts
 - *Formal verification*: Mathematical proofs of convergence properties
 
+= Expected Contributions and Impact
+
+This research proposal presents the Ustad Protocol as a promising direction for addressing fundamental limitations in current AI reasoning systems. By introducing collaborative multi-perspective dialogue, we aim to create more reliable and trustworthy AI systems.
+
+== Expected Contributions
+
+1. *Theoretical*: Formal framework for collaborative AI reasoning
+2. *Empirical*: Comprehensive evaluation methodology and benchmarks
+3. *Practical*: Open-source implementation and tools
+4. *Community*: Foundation for future research in multi-agent reasoning
+
 = Conclusion
 
-The Ustad Protocol represents a fundamental paradigm shift in AI reasoning architectures. By transforming reactive, single-agent responses into proactive, collaborative intelligence, we address core failure patterns that undermine LLM reliability. Our empirical results demonstrate significant improvements across all metrics, validating the efficacy of multi-perspective reasoning.
+The Ustad Protocol represents a novel approach to AI reasoning through collaborative multi-perspective dialogue. This research proposal outlines a comprehensive plan to develop, implement, and validate this approach. We hypothesize that structured collaboration between diverse AI perspectives can significantly reduce hallucination, improve context retention, and enhance overall reasoning quality.
 
 The protocol's name—"Ustad" meaning "master teacher" in Turkish and Urdu—reflects its philosophy: wisdom emerges not from isolated intelligence but from collaborative dialogue. As we move toward AGI, such architectures will be essential for creating AI systems that are not just powerful but also reliable, trustworthy, and aligned with human values.
 
