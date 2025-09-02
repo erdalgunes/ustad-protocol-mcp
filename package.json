@@ -12,7 +12,7 @@
     "name": "Batch of Thought",
     "description": "Parallel thinking from 8 perspectives - replaces sequential thinking for the Quetiapine Protocol",
     "command": "python",
-    "args": ["-m", "bot_mcp.bot_mcp_server"],
+    "args": ["-m", "bot_mcp.perfect_mcp_server"],
     "env": {
       "PYTHONPATH": "./src"
     },
