@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 import json
-from bot_mcp.perfect_bot import PerfectBatchOfThought, PerspectiveType
+from bot_mcp.ultimate_bot import UltimateBatchOfThought as PerfectBatchOfThought, PerspectiveType
 
 def test_real_problem():
     """Test on a real, complex problem."""

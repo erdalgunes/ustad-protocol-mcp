@@ -27,7 +27,7 @@ except ImportError:
                 return func
             return decorator
 
-from .perfect_bot import PerfectBatchOfThought, PerspectiveType, IntelligentThoughtGenerator, EnhancedScorer
+from .ultimate_bot import UltimateBatchOfThought as PerfectBatchOfThought, PerspectiveType
 
 # Configure logging
 logging.basicConfig(
