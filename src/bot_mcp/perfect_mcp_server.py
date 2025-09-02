@@ -27,7 +27,7 @@ except ImportError:
                 return func
             return decorator
 
-from .ultimate_bot import UltimateBatchOfThought as PerfectBatchOfThought, PerspectiveType
+from .openai_bot import OpenAIMCPServer, PerspectiveType
 
 # Configure logging
 logging.basicConfig(
@@ -43,14 +43,14 @@ class PerfectBotMCPServer:
     def __init__(self):
         """Initialize the perfect server."""
         self.server = Server("perfect-batch-of-thought")
-        self.bot = PerfectBatchOfThought()
+        self.bot = OpenAIMCPServer()
         self.history = []  # Store thinking history for learning
         self.feedback_db = {}  # Store feedback for improvement
         
         # Register all tools
         self._register_tools()
         
-        logger.info("Perfect BoT MCP Server initialized")
+        logger.info("Perfect BoT MCP Server initialized with OpenAI backend")
     
     def _register_tools(self):
         """Register all MCP tools."""
@@ -80,18 +80,9 @@ class PerfectBotMCPServer:
             try:
                 logger.info(f"Perfect think: {problem[:50]}...")
                 
-                # Convert perspective names to enums
-                perspective_enums = None
-                if perspectives:
-                    perspective_enums = [
-                        PerspectiveType[p.upper()] 
-                        for p in perspectives 
-                        if p.upper() in PerspectiveType.__members__
-                    ]
-                
-                # Generate intelligent thoughts
-                bot = PerfectBatchOfThought(num_thoughts=num_thoughts)
-                result = bot.think(problem, context, perspective_enums)
+                # Use OpenAI backend for real AI thinking
+                result_json = await self.bot.think(problem, context, num_thoughts)
+                result = json.loads(result_json)
                 
                 # Store in history for learning
                 self.history.append({
@@ -101,11 +92,15 @@ class PerfectBotMCPServer:
                 })
                 
                 # Add tool metadata
-                result["metadata"] = {
-                    "version": "2.0",
-                    "engine": "perfect-bot",
-                    "timestamp": datetime.now().isoformat()
-                }
+                if "metadata" not in result:
+                    result["metadata"] = {}
+                result["metadata"].update({
+                    "version": "3.0",
+                    "engine": "openai-gpt-3.5-turbo",
+                    "timestamp": datetime.now().isoformat(),
+                    "parallel_execution": True,
+                    "real_ai": True
+                })
                 
                 return json.dumps(result, indent=2)
                 
