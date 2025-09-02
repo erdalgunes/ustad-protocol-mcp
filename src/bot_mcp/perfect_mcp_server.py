@@ -11,8 +11,9 @@ from datetime import datetime
 # For MCP compatibility, we'll create a minimal interface
 # that works even without the full MCP package
 try:
-    from mcp import Server, Tool
-    from mcp.server.stdio import stdio_server
+    from mcp.server import Server
+    from mcp.types import Tool
+    from mcp import stdio_server
     MCP_AVAILABLE = True
 except ImportError:
     MCP_AVAILABLE = False
