@@ -154,7 +154,7 @@ async def ustad_search(
         return {"error": "Search error", "message": str(e)}
 
 
-@mcp.resource("health")  # type: ignore[misc]
+@mcp.resource("health://server/status")  # type: ignore[misc]
 async def health_check() -> dict[str, Any]:
     """
     Health check endpoint for container orchestration.
@@ -172,7 +172,7 @@ async def health_check() -> dict[str, Any]:
     }
 
 
-@mcp.resource("capabilities")  # type: ignore[misc]
+@mcp.resource("capabilities://server/info")  # type: ignore[misc]
 async def capabilities() -> dict[str, Any]:
     """
     Capabilities endpoint for version and feature detection.
