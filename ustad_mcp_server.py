@@ -12,6 +12,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from src.auth import create_auth_verifier
+from src.rate_limiting import create_rate_limiter
 
 # Import our sequential thinking implementation and auth
 from src.sequential_thinking import SequentialThinkingServer
@@ -25,17 +26,33 @@ logger = logging.getLogger(__name__)
 # Initialize OAuth 2.1 authentication (addresses CVE-2025-49596)
 auth_verifier = create_auth_verifier()
 
-# Log authentication status for security monitoring
+# Initialize rate limiting for abuse prevention
+rate_limiter = create_rate_limiter()
+
+# Log security features status
 if auth_verifier:
     logger.info("🔐 OAuth 2.1 authentication ENABLED - Server is secure")
 else:
     logger.warning("⚠️  Authentication DISABLED - Development mode only")
+
+if rate_limiter:
+    logger.info("🚦 Rate limiting ENABLED - DoS protection active")
+else:
+    logger.warning("⚠️  Rate limiting DISABLED - Install slowapi for production")
 
 # Initialize FastMCP server with optional authentication
 mcp = FastMCP(
     name="ustad-protocol-mcp",
     auth=auth_verifier,  # None if auth not configured, enables development mode
 )
+
+# Add rate limiting middleware if available
+if rate_limiter:
+    try:
+        mcp.add_middleware(rate_limiter)
+        logger.info("Rate limiting middleware added successfully")
+    except Exception as e:
+        logger.exception("Failed to add rate limiting middleware")
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
