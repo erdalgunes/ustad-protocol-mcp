@@ -17,25 +17,28 @@ Problem → 8 AI Perspectives → Challenge & Debate → Consensus → Synthesis
 ```
 
 - **Challenge Phase**: Ideas are tested through disagreement
-- **Consensus Building**: True synthesis emerges from dialogue  
+- **Consensus Building**: True synthesis emerges from dialogue
 - **Adaptive Reasoning**: Problem complexity determines dialogue depth
 - **Session Isolation**: Multiple concurrent users without interference
 
 ## 🚀 Key Features
 
 ### 🎯 Collaborative Intelligence
+
 - **Multi-Round Dialogue**: 3-8 AI perspectives engage in structured debate
 - **Real-Time Streaming**: Watch collaborative reasoning unfold live
 - **Custom Perspectives**: Choose analytical, creative, critical, practical, strategic, etc.
 - **Meta-Reasoning**: Intelligent tool selection for optimal problem-solving
 
 ### 🐳 Production-Ready Deployment
+
 - **Containerized**: Docker + Docker Compose ready
 - **Multi-Transport**: STDIO, HTTP, SSE (Server-Sent Events)
 - **Session Isolation**: Thread-local storage for concurrent users
 - **Health Monitoring**: Built-in health checks and monitoring
 
 ### 🛠️ Enhanced Reasoning Tools
+
 - **`ustad_start`**: Initialize collaborative reasoning system
 - **`ustad_think`**: Full 3-8 perspective collaborative dialogue
 - **`ustad_quick`**: Fast 3-perspective analysis
@@ -96,6 +99,7 @@ Add to your `~/.claude.json`:
 ## 🧪 Example Usage
 
 ### Multi-Perspective Analysis
+
 ```
 Use ustad_think to analyze: "How should we architect a scalable microservices system?"
 ```
@@ -103,6 +107,7 @@ Use ustad_think to analyze: "How should we architect a scalable microservices sy
 **Result**: 8 AI perspectives debate architecture patterns, challenge assumptions, and reach consensus on optimal design.
 
 ### Quick Decision Making
+
 ```
 Use ustad_quick to decide: "Should we use REST or GraphQL for our API?"
 ```
@@ -110,6 +115,7 @@ Use ustad_quick to decide: "Should we use REST or GraphQL for our API?"
 **Result**: Fast 3-perspective analysis with clear recommendation.
 
 ### Research-Backed Solutions
+
 ```
 Use ustad_research on: "Latest Docker security best practices 2025"
 ```
@@ -120,20 +126,22 @@ Use ustad_research on: "Latest Docker security best practices 2025"
 
 ### Transport Options
 
-| Transport | Use Case | Sessions | Performance |
-|-----------|----------|----------|-------------|
-| **STDIO** | Local development | Single | Fastest |
-| **HTTP** | Simple API calls | Multiple | Good |
-| **SSE** | Real-time streaming | Multiple | Optimal |
+| Transport | Use Case            | Sessions | Performance |
+| --------- | ------------------- | -------- | ----------- |
+| **STDIO** | Local development   | Single   | Fastest     |
+| **HTTP**  | Simple API calls    | Multiple | Good        |
+| **SSE**   | Real-time streaming | Multiple | Optimal     |
 
 ### Session Isolation
 
 ```python
 from threading import local
+
 _session_storage = local()
 
+
 def get_session_id():
-    if not hasattr(_session_storage, 'session_id'):
+    if not hasattr(_session_storage, "session_id"):
         _session_storage.session_id = str(uuid.uuid4())[:8]
     return _session_storage.session_id
 ```
@@ -160,37 +168,40 @@ ustad-protocol/
 
 ## 🔬 Available Tools
 
-| Tool | Purpose | Perspectives | Streaming |
-|------|---------|-------------|-----------|
-| `ustad_start` | Session initialization | - | ❌ |
-| `ustad_think` | Full collaborative reasoning | 3-8 | ✅ |
-| `ustad_quick` | Fast analysis | 3 | ❌ |
-| `ustad_decide` | Decision making | 4 | ❌ |
-| `ustad_research` | Research + analysis | 4 | ❌ |
-| `ustad_preflight` | Risk assessment | 4 | ❌ |
+| Tool              | Purpose                      | Perspectives | Streaming |
+| ----------------- | ---------------------------- | ------------ | --------- |
+| `ustad_start`     | Session initialization       | -            | ❌        |
+| `ustad_think`     | Full collaborative reasoning | 3-8          | ✅        |
+| `ustad_quick`     | Fast analysis                | 3            | ❌        |
+| `ustad_decide`    | Decision making              | 4            | ❌        |
+| `ustad_research`  | Research + analysis          | 4            | ❌        |
+| `ustad_preflight` | Risk assessment              | 4            | ❌        |
 
 ## 🚀 Deployment Options
 
 ### Local Development
+
 ```bash
 python ustad_fastmcp.py --stdio
 ```
 
 ### Production (Docker)
+
 ```bash
 docker-compose up -d
 ```
 
 ### Cloud Run / Kubernetes
+
 See [CONTAINER_DEPLOYMENT.md](CONTAINER_DEPLOYMENT.md) for detailed guides.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+1. Create a feature branch
+1. Make your changes
+1. Add tests
+1. Submit a pull request
 
 ## 📄 License
 
@@ -203,7 +214,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **OpenAI**: For powering the collaborative intelligence
 - **Tavily**: For comprehensive web research capabilities
 
----
+______________________________________________________________________
 
 **"The apprentice asks, the master guides, wisdom emerges from dialogue."** 🧠✨
 

@@ -23,7 +23,7 @@ COPY ustad_fastmcp.py .
 COPY *.md .
 COPY docker-compose.yml .
 
-# Set environment variables for container  
+# Set environment variables for container
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
 

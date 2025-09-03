@@ -3,19 +3,22 @@
 ## Critical Issues Found (2025-09-03)
 
 ### ❌ Missing (MUST HAVE)
+
 - [ ] **poetry.lock file** - Required for reproducible builds
   - Run `poetry lock` locally
   - Commit the file
   - CI will fail without it
 
 ### ⚠️ Version Issues
+
 - [x] Fixed: Ruff version in pyproject.toml (was 0.8.0, now ^0.7)
 - [x] Fixed: pytest-xdist version (was 3.5.0, now ^3.6)
 - [x] Fixed: Other package versions to use caret notation
 
 ### ✅ Completed
+
 - [x] CI/CD pipeline with all checks (2025-09-03)
-- [x] Pre-commit hooks configuration 
+- [x] Pre-commit hooks configuration
 - [x] Cross-platform testing (Ubuntu, macOS, Windows)
 - [x] Security scanning (Bandit, pip-audit, safety)
 - [x] Branch protection documentation
@@ -23,6 +26,7 @@
 - [x] Project-specific CLAUDE.md for AI scaffolding
 
 ### 🔧 Configuration Issues
+
 - [x] Fixed: Poetry cache paths for different OS
 - [x] Added: Concurrency control to cancel duplicate CI runs
 - [x] Added: Timeout settings for all jobs
@@ -31,25 +35,28 @@
 ## Next Session Should
 
 1. **Generate real poetry.lock**:
+
    ```bash
    poetry lock --no-update
    git add poetry.lock
    git commit -m "chore: add poetry.lock for reproducible builds"
    ```
 
-2. **Test the CI pipeline**:
+1. **Test the CI pipeline**:
+
    ```bash
    # Validate all YAML files
    python -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
-   
+
    # Run pre-commit hooks
    pre-commit run --all-files
-   
+
    # Test locally with act (if available)
    act -n  # Dry run
    ```
 
-3. **Fix any remaining issues in cli_inspector.py**:
+1. **Fix any remaining issues in cli_inspector.py**:
+
    - Complete the Pythonic refactoring
    - Add missing helper methods
    - Ensure all tests pass
@@ -57,11 +64,13 @@
 ## Known Limitations
 
 ### CI/CD Pipeline
+
 - poetry.lock is missing (CI will fail)
 - Tests might fail on Windows due to path issues
 - Some security tools might need configuration
 
 ### Code Quality
+
 - cli_inspector.py refactoring incomplete
 - Missing some helper methods referenced in refactored code
 - No actual tests written yet for the inspector
@@ -92,6 +101,7 @@
 ## Session Notes
 
 ### 2025-09-03 Session Discoveries
+
 - Ruff latest version is 0.7.x, not 0.8.x
 - Poetry cache paths differ by OS
 - Windows needs special handling in CI

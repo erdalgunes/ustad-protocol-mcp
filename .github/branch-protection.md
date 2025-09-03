@@ -9,11 +9,13 @@ Navigate to: Settings → Branches → Add rule
 ### Branch name pattern: `main`
 
 #### ✅ Require a pull request before merging
+
 - **Require approvals**: 1
 - **Dismiss stale pull request approvals when new commits are pushed**: ✓
 - **Require review from CODEOWNERS**: ✓ (if using CODEOWNERS)
 
 #### ✅ Require status checks to pass before merging
+
 - **Require branches to be up to date before merging**: ✓
 - **Required status checks**:
   - `Validate Poetry Lock`
@@ -32,6 +34,7 @@ Navigate to: Settings → Branches → Add rule
 #### ✅ Include administrators (recommended for consistency)
 
 #### ✅ Restrict who can push to matching branches
+
 - Add specific users/teams who can push directly (emergency fixes only)
 
 #### ❌ Allow force pushes (keep disabled)
@@ -43,6 +46,7 @@ Navigate to: Settings → Branches → Add rule
 ### Branch name pattern: `develop`
 
 Similar to main but with relaxed rules:
+
 - **Require approvals**: 0 (or 1 for larger teams)
 - Same status checks as main
 - Allow force pushes from administrators only
@@ -52,6 +56,7 @@ Similar to main but with relaxed rules:
 ### Branch name pattern: `feature/*`
 
 Minimal protection:
+
 - No required reviews
 - Basic status checks (lint, test)
 - Allow deletions after merge
@@ -70,29 +75,30 @@ Minimal protection:
 ### General Repository Settings
 
 1. **Default branch**: Set to `main`
-2. **Allow merge commits**: ✓
-3. **Allow squash merging**: ✓ (recommended)
-4. **Allow rebase merging**: ✓
-5. **Automatically delete head branches**: ✓
+1. **Allow merge commits**: ✓
+1. **Allow squash merging**: ✓ (recommended)
+1. **Allow rebase merging**: ✓
+1. **Automatically delete head branches**: ✓
 
 ### Actions Settings
 
 1. **Fork pull request workflows**: Require approval for first-time contributors
-2. **Workflow permissions**: Read repository contents and write pull requests
+1. **Workflow permissions**: Read repository contents and write pull requests
 
 ### Security Settings
 
 1. **Dependency graph**: Enable
-2. **Dependabot alerts**: Enable
-3. **Dependabot security updates**: Enable
-4. **Secret scanning**: Enable
-5. **Code scanning**: Set up with CodeQL
+1. **Dependabot alerts**: Enable
+1. **Dependabot security updates**: Enable
+1. **Secret scanning**: Enable
+1. **Code scanning**: Set up with CodeQL
 
 ## Automation Rules
 
 ### Auto-merge (if enabled)
 
 For dependabot PRs with passing checks:
+
 ```yaml
 # .github/auto-merge.yml
 - match:
@@ -103,6 +109,7 @@ For dependabot PRs with passing checks:
 ### CODEOWNERS (optional)
 
 Create `.github/CODEOWNERS`:
+
 ```
 # Global owners
 * @teamname
@@ -120,6 +127,7 @@ Create `.github/CODEOWNERS`:
 ## Enforcement
 
 These rules ensure:
+
 - ✅ No direct pushes to main
 - ✅ All code is reviewed
 - ✅ All checks pass before merge
@@ -131,14 +139,16 @@ These rules ensure:
 ## Emergency Override
 
 In case of critical production issues:
+
 1. Create hotfix branch from main
-2. Admin can temporarily disable protection
-3. Apply fix with expedited review
-4. Re-enable protection immediately after
+1. Admin can temporarily disable protection
+1. Apply fix with expedited review
+1. Re-enable protection immediately after
 
 ## Monitoring
 
 Set up notifications for:
+
 - Failed CI/CD runs
 - Security alerts
 - Branch protection bypasses

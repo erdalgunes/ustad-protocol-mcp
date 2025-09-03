@@ -1,10 +1,9 @@
-"""
-🧠 Ustad Protocol Cognitive Scaffolding Framework
+"""🧠 Ustad Protocol Cognitive Scaffolding Framework
 ===============================================
 
 Support tools and utilities for providing cognitive assistance with common computing challenges:
 - Memory fragmentation / Context switching overhead
-- Race conditions / Premature optimization  
+- Race conditions / Premature optimization
 - Process termination / Resource cleanup issues
 - Memory bloat / Unnecessary complexity
 - Cache misses / Unverified data confidence
@@ -20,10 +19,10 @@ from .utils import analyze_conversation, extract_patterns, generate_recommendati
 __version__ = "0.4.0"
 __all__ = [
     "CognitiveScaffoldTool",
-    "SupportAlert", 
+    "SupportAlert",
     "SupportSeverity",
     "ContextTracker",
     "analyze_conversation",
     "extract_patterns",
-    "generate_recommendations"
+    "generate_recommendations",
 ]

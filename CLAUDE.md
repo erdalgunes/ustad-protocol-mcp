@@ -26,7 +26,29 @@
 
 ## 🧠 Known AI Limitations & Mitigations
 
-### 1. Overwriting Instead of Editing
+### 1. LACK OF PERSEVERANCE (Critical Issue)
+**Problem**: AI gives up too quickly when something fails instead of debugging
+**Example**: Removed types-all instead of fixing the actual issue
+**Mitigation**:
+```bash
+# MANDATORY: When something fails, follow this process:
+1. Understand the EXACT error message
+2. Search for the ROOT CAUSE (not symptoms)
+3. Try at least 3 different solutions
+4. Only give up after exhausting all options
+5. Document why each attempt failed
+
+# Example of BAD behavior (what I did):
+# "types-all failed, I'll just remove it" ❌
+
+# Example of GOOD behavior (what I should do):
+# "types-all failed because types-pkg-resources missing"
+# "Let me search why types-pkg-resources is missing"
+# "Found: types-pkg-resources was removed in newer versions"
+# "Solution: Use specific type stubs instead of types-all" ✅
+```
+
+### 2. Overwriting Instead of Editing
 **Problem**: AI may accidentally overwrite entire files (as I did with ci.yml)
 **Mitigation**:
 ```bash
@@ -56,7 +78,7 @@ package = "^1.0"  # Gets latest compatible
   run: |
     if [ "$RUNNER_OS" == "Linux" ]; then
       echo "dir=$HOME/.cache/<app>"
-    elif [ "$RUNNER_OS" == "Windows" ]; then  
+    elif [ "$RUNNER_OS" == "Windows" ]; then
       echo "dir=$LOCALAPPDATA\\<app>"
     elif [ "$RUNNER_OS" == "macOS" ]; then
       echo "dir=$HOME/Library/Caches/<app>"
@@ -203,7 +225,7 @@ git reset --soft HEAD~1  # Uncommit, keep changes
 
 Each session should:
 - ✅ Make 5-10 atomic commits minimum
-- ✅ All changes tested before commit  
+- ✅ All changes tested before commit
 - ✅ No destructive operations without backup
 - ✅ Leave clear notes for next session
 - ✅ Maintain or improve code coverage
@@ -253,7 +275,7 @@ if making_claim:
     verify_first()  # Break avoidance
 ```
 
-### Over-Engineering Maintenance  
+### Over-Engineering Maintenance
 - **Safety behavior**: Complexity as false security
 - **Solution**: Exposure to simplicity
 ```python

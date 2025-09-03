@@ -7,6 +7,7 @@ Our enhanced Ustad MCP server now supports **SSE (Server-Sent Events)** transpor
 ## 🚀 Quick Start
 
 ### Option 1: Docker Compose (Recommended)
+
 ```bash
 # Clone and navigate to the project
 cd ustad
@@ -25,6 +26,7 @@ docker-compose logs -f ustad-mcp
 ```
 
 ### Option 2: Direct Docker
+
 ```bash
 # Build the image
 docker build -t ustad-mcp .
@@ -48,21 +50,23 @@ docker run -d \
 ## 🔧 Transport Options
 
 ### SSE Transport (Default - Recommended)
+
 ```bash
 # Container startup
 python ustad_fastmcp.py --sse 8000
 
 # Features:
 ✅ Multiple concurrent sessions
-✅ Real-time streaming updates  
+✅ Real-time streaming updates
 ✅ Persistent connections
 ✅ Automatic session isolation
 ✅ Perfect for collaborative reasoning
 ```
 
 ### HTTP Transport (Alternative)
+
 ```bash
-# Container startup  
+# Container startup
 python ustad_fastmcp.py --http 8000
 
 # Features:
@@ -73,6 +77,7 @@ python ustad_fastmcp.py --http 8000
 ```
 
 ### STDIO Transport (Local Only)
+
 ```bash
 # Direct execution (not containerized)
 python ustad_fastmcp.py --stdio
@@ -86,6 +91,7 @@ python ustad_fastmcp.py --stdio
 ## 📡 Connecting to Containerized MCP
 
 ### From Claude Code:
+
 ```json
 {
   "mcpServers": {
@@ -102,6 +108,7 @@ python ustad_fastmcp.py --stdio
 ```
 
 ### Via SSE URL:
+
 ```
 http://localhost:8000/sse
 ```
@@ -109,8 +116,9 @@ http://localhost:8000/sse
 ## 🛠️ Available Tools
 
 All 15 enhanced reasoning tools:
+
 - **ustad_start** - Session initialization
-- **ustad_think** - Multi-perspective collaborative reasoning  
+- **ustad_think** - Multi-perspective collaborative reasoning
 - **ustad_research** - Liberal fact-checking with Tavily
 - **ustad_preflight** - Pre-flight risk analysis
 - **ustad_context** - Context continuity management
@@ -137,6 +145,7 @@ curl -X POST http://localhost:8000 \
 ## 🔄 Scaling Options
 
 ### Multiple Instances
+
 ```yaml
 # docker-compose.override.yml
 services:
@@ -145,7 +154,7 @@ services:
     container_name: ustad-mcp-server-2
     ports:
       - "8001:8000"
-      
+
   ustad-mcp-3:
     extends: ustad-mcp
     container_name: ustad-mcp-server-3
@@ -154,6 +163,7 @@ services:
 ```
 
 ### Load Balancing
+
 ```yaml
 nginx:
   image: nginx:alpine
@@ -176,6 +186,7 @@ nginx:
 ## 📊 Production Deployment
 
 ### Kubernetes
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -202,6 +213,7 @@ spec:
 ```
 
 ### Cloud Run / Container Apps
+
 ```yaml
 # Cloud Run deployment
 gcloud run deploy ustad-mcp \
@@ -211,14 +223,14 @@ gcloud run deploy ustad-mcp \
   --allow-unauthenticated
 ```
 
----
+______________________________________________________________________
 
 ## 🎯 Why SSE for Containers?
 
 1. **Perfect Multi-Session Support** - Each connection is naturally isolated
-2. **Real-time Streaming** - Ideal for `ustad_think_stream` and collaborative reasoning
-3. **Resource Efficiency** - Persistent connections reduce overhead
-4. **Container-Native** - Works seamlessly with orchestration platforms
-5. **Session Lifecycle** - Connection lifecycle matches session lifecycle
+1. **Real-time Streaming** - Ideal for `ustad_think_stream` and collaborative reasoning
+1. **Resource Efficiency** - Persistent connections reduce overhead
+1. **Container-Native** - Works seamlessly with orchestration platforms
+1. **Session Lifecycle** - Connection lifecycle matches session lifecycle
 
 **Result**: Robust, scalable, multi-session MCP server ready for production! 🚀

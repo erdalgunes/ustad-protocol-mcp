@@ -12,8 +12,8 @@
 We take security seriously. If you discover a security vulnerability, please follow these steps:
 
 1. **DO NOT** create a public GitHub issue
-2. Email security details to: [security@example.com] (replace with actual email)
-3. Include:
+1. Email security details to: [security@example.com] (replace with actual email)
+1. Include:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
@@ -24,18 +24,21 @@ We take security seriously. If you discover a security vulnerability, please fol
 This project implements several security measures:
 
 ### Automated Security Scanning
+
 - **Bandit**: Static security analysis on every commit
 - **pip-audit**: Vulnerability scanning for dependencies
 - **Safety**: Known security vulnerabilities check
 - **Dependabot**: Automated dependency updates
 
 ### CI/CD Security
+
 - Branch protection rules enforce code review
 - All dependencies are pinned via `poetry.lock`
 - Security scans run on every pull request
 - Secrets are never logged or exposed
 
 ### Development Practices
+
 - Type hints enforced via MyPy (reduces runtime errors)
 - 80% minimum test coverage requirement
 - Pre-commit hooks prevent sensitive data commits
@@ -60,6 +63,7 @@ This project implements several security measures:
 ## Security Checklist for Contributors
 
 Before submitting code:
+
 - [ ] Run `make security` locally
 - [ ] No hardcoded secrets or credentials
 - [ ] Input validation on all user data

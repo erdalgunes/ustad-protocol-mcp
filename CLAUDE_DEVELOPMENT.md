@@ -1,9 +1,10 @@
 # CLAUDE.md - Ustad Development Protocol v0.2.0
 
 ## Core Principle: Think Before Acting
+
 Every request goes through collaborative analysis first. No exceptions.
 
----
+______________________________________________________________________
 
 ## 🎯 Step 0: ALWAYS Start Session & Understand Intent
 
@@ -13,36 +14,42 @@ Every request goes through collaborative analysis first. No exceptions.
 ```
 
 ### Example:
+
 User: "Fix the auth bug"
+
 ```
 → ustad_start
 → ustad_think: "What auth bug? What system? What's the real goal?"
 → Then investigate
 ```
 
----
+______________________________________________________________________
 
 ## 🔍 Step 1: Research Before Claiming
 
 **For ANY technical task:**
+
 ```
 mcp__tavily-mcp__tavily-search      # Research the domain
 mcp__ustad-think__ustad_research    # Deep analysis
 ```
 
 ### Example:
+
 User: "Implement Redis caching"
+
 ```
 → tavily_search: "Redis caching best practices 2025"
 → ustad_research: "Redis implementation patterns"
 → Then implement
 ```
 
----
+______________________________________________________________________
 
 ## 🧠 Step 2: Think Before Coding
 
 **For ANY implementation:**
+
 ```
 mcp__ustad-think__ustad_think       # Multi-perspective analysis
 mcp__sequential-thinking__sequentialthinking  # Step-by-step planning
@@ -50,18 +57,21 @@ TodoWrite                            # Track the plan
 ```
 
 ### Example:
+
 User: "Add dark mode"
+
 ```
 → ustad_think: "How to implement dark mode properly?"
 → sequentialthinking: Break down into steps
 → TodoWrite: Track each component
 ```
 
----
+______________________________________________________________________
 
 ## 🛠️ Step 3: Systematic Execution
 
 **For complex tasks:**
+
 ```
 mcp__ustad-think__ustad_systematic  # Methodical execution
 TodoWrite                            # Update progress
@@ -69,18 +79,21 @@ git commit                           # Checkpoint each step
 ```
 
 ### Example:
+
 Building a feature:
+
 ```
 → ustad_systematic: Plan and execute
 → TodoWrite: Mark progress
 → git commit -m "feat: add component X"
 ```
 
----
+______________________________________________________________________
 
 ## 🔄 Step 4: Handle Errors Properly
 
 **When things go wrong:**
+
 ```
 mcp__ustad-think__ustad_think       # Analyze the error
 mcp__tavily-mcp__tavily-search      # Research solutions
@@ -88,7 +101,9 @@ TodoWrite                            # Add as task, don't abandon
 ```
 
 ### Example:
+
 Error occurs:
+
 ```
 → ustad_think: "Why did this fail?"
 → tavily_search: "Error: [specific error message]"
@@ -96,22 +111,24 @@ Error occurs:
 → Try multiple approaches before giving up
 ```
 
----
+______________________________________________________________________
 
 ## 📊 Step 5: Validate Before Claiming Success
 
 **After implementation:**
+
 ```
 mcp__ustad-think__ustad_preflight   # Check for issues
 Test the code                        # Actually run it
 git status/diff                      # Verify changes
 ```
 
----
+______________________________________________________________________
 
 ## Practical Workflow Examples
 
 ### Example 1: Bug Fix
+
 ```bash
 # User: "There's a memory leak in the session handler"
 
@@ -125,6 +142,7 @@ git status/diff                      # Verify changes
 ```
 
 ### Example 2: New Feature
+
 ```bash
 # User: "Add CSV export functionality"
 
@@ -138,6 +156,7 @@ git status/diff                      # Verify changes
 ```
 
 ### Example 3: Refactoring
+
 ```bash
 # User: "This code is messy, refactor it"
 
@@ -150,7 +169,7 @@ git status/diff                      # Verify changes
 7. Test and commit
 ```
 
----
+______________________________________________________________________
 
 ## Quick Decision Tree
 
@@ -171,41 +190,45 @@ Before committing?
   → ustad_preflight (check for issues)
 ```
 
----
+______________________________________________________________________
 
 ## Tool Combinations That Work
 
 ### Research + Think
+
 ```python
 tavily_search("topic") → ustad_think("analyze findings")
 ```
 
 ### Think + Plan + Do
+
 ```python
 ustad_think("approach") → TodoWrite(steps) → Execute
 ```
 
 ### Debug + Fix
+
 ```python
 ustad_think("error analysis") → tavily_search("solution") → Edit
 ```
 
----
+______________________________________________________________________
 
 ## Development Rules
 
 1. **ALWAYS start with ustad_start** - No exceptions
-2. **Think before acting** - ustad_think for any non-trivial task
-3. **Research before claiming** - tavily_search for any technical claim
-4. **Plan before coding** - TodoWrite for multi-step tasks
-5. **Commit atomically** - git commit after each logical change
-6. **Don't abandon on errors** - Add to TodoWrite and try 3 approaches
+1. **Think before acting** - ustad_think for any non-trivial task
+1. **Research before claiming** - tavily_search for any technical claim
+1. **Plan before coding** - TodoWrite for multi-step tasks
+1. **Commit atomically** - git commit after each logical change
+1. **Don't abandon on errors** - Add to TodoWrite and try 3 approaches
 
----
+______________________________________________________________________
 
 ## Available Tools Reference
 
 ### Thinking Tools
+
 - `mcp__ustad-think__ustad_start` - Initialize (ALWAYS FIRST)
 - `mcp__ustad-think__ustad_think` - 8-perspective analysis
 - `mcp__ustad-think__ustad_quick` - 3-perspective for simple problems
@@ -213,20 +236,23 @@ ustad_think("error analysis") → tavily_search("solution") → Edit
 - `mcp__sequential-thinking__sequentialthinking` - Step-by-step reasoning
 
 ### Research Tools
+
 - `mcp__tavily-mcp__tavily-search` - Web search
 - `mcp__ustad-think__ustad_research` - Deep research analysis
 
 ### Execution Tools
+
 - `TodoWrite` - Task management
 - `Read`, `Edit`, `MultiEdit` - File operations
 - `Bash` - Command execution
 - `git` - Version control
 
----
+______________________________________________________________________
 
 ## Success Metrics
 
 Track these in every session:
+
 - [ ] Started with ustad_start?
 - [ ] Understood intent before acting?
 - [ ] Researched before implementing?
@@ -234,25 +260,31 @@ Track these in every session:
 - [ ] Committed atomically?
 - [ ] Handled errors without abandoning?
 
----
+______________________________________________________________________
 
 ## Simple Test Cases
 
 ### Test 1: Simple Fix
+
 "Fix the typo in README"
+
 - Should: Read → Edit → Commit
 - Not: ustad_think (too simple)
 
 ### Test 2: Complex Feature
+
 "Add authentication system"
+
 - Should: ustad_start → ustad_think → research → systematic → todos
 - Not: Jump straight to coding
 
 ### Test 3: Debug Error
+
 "Function returns undefined"
+
 - Should: ustad_think → investigate → multiple solutions
 - Not: Give up after first attempt
 
----
+______________________________________________________________________
 
 *"Simplicity is the ultimate sophistication. Start with thinking, always."*

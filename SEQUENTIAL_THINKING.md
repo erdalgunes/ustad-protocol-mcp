@@ -40,7 +40,7 @@ thought1 = {
     "thought": "Breaking down the problem into components",
     "thoughtNumber": 1,
     "totalThoughts": 5,
-    "nextThoughtNeeded": True
+    "nextThoughtNeeded": True,
 }
 result = server.process_thought(thought1)
 
@@ -49,7 +49,7 @@ thought2 = {
     "thought": "Analyzing the first component in detail",
     "thoughtNumber": 2,
     "totalThoughts": 5,
-    "nextThoughtNeeded": True
+    "nextThoughtNeeded": True,
 }
 result = server.process_thought(thought2)
 
@@ -71,7 +71,7 @@ revision = {
     "totalThoughts": 5,
     "isRevision": True,
     "revisesThought": 1,
-    "nextThoughtNeeded": True
+    "nextThoughtNeeded": True,
 }
 server.process_thought(revision)
 ```
@@ -86,7 +86,7 @@ branch = {
     "totalThoughts": 6,
     "branchFromThought": 2,
     "branchId": "alternative-1",
-    "nextThoughtNeeded": True
+    "nextThoughtNeeded": True,
 }
 server.process_thought(branch)
 ```
@@ -100,7 +100,7 @@ adjustment = {
     "thoughtNumber": 5,
     "totalThoughts": 10,  # Increased from 5
     "needsMoreThoughts": True,
-    "nextThoughtNeeded": True
+    "nextThoughtNeeded": True,
 }
 server.process_thought(adjustment)
 ```
@@ -110,9 +110,9 @@ server.process_thought(adjustment)
 The MCP server provides four tools:
 
 1. **sequential_thinking**: Process individual thoughts
-2. **get_thinking_summary**: Get session summary and statistics
-3. **reset_thinking_session**: Reset for a fresh start
-4. **get_thought_history**: View complete thought history
+1. **get_thinking_summary**: Get session summary and statistics
+1. **reset_thinking_session**: Reset for a fresh start
+1. **get_thought_history**: View complete thought history
 
 #### Running the MCP Server
 
@@ -188,38 +188,46 @@ tests/
 server = SequentialThinkingServer()
 
 # Step 1: Understand the problem
-server.process_thought({
-    "thought": "Understanding the user's requirements",
-    "thoughtNumber": 1,
-    "totalThoughts": 4,
-    "nextThoughtNeeded": True
-})
+server.process_thought(
+    {
+        "thought": "Understanding the user's requirements",
+        "thoughtNumber": 1,
+        "totalThoughts": 4,
+        "nextThoughtNeeded": True,
+    }
+)
 
 # Step 2: Design solution
-server.process_thought({
-    "thought": "Designing the solution architecture",
-    "thoughtNumber": 2,
-    "totalThoughts": 4,
-    "nextThoughtNeeded": True
-})
+server.process_thought(
+    {
+        "thought": "Designing the solution architecture",
+        "thoughtNumber": 2,
+        "totalThoughts": 4,
+        "nextThoughtNeeded": True,
+    }
+)
 
 # Step 3: Consider alternatives
-server.process_thought({
-    "thought": "Exploring alternative approaches",
-    "thoughtNumber": 3,
-    "totalThoughts": 4,
-    "branchFromThought": 2,
-    "branchId": "alt-design",
-    "nextThoughtNeeded": True
-})
+server.process_thought(
+    {
+        "thought": "Exploring alternative approaches",
+        "thoughtNumber": 3,
+        "totalThoughts": 4,
+        "branchFromThought": 2,
+        "branchId": "alt-design",
+        "nextThoughtNeeded": True,
+    }
+)
 
 # Step 4: Final decision
-server.process_thought({
-    "thought": "Selecting optimal approach based on analysis",
-    "thoughtNumber": 4,
-    "totalThoughts": 4,
-    "nextThoughtNeeded": False
-})
+server.process_thought(
+    {
+        "thought": "Selecting optimal approach based on analysis",
+        "thoughtNumber": 4,
+        "totalThoughts": 4,
+        "nextThoughtNeeded": False,
+    }
+)
 
 # Check completion
 assert server.is_complete() == True
@@ -228,9 +236,9 @@ assert server.is_complete() == True
 ## Contributing
 
 1. Follow TDD - write tests first
-2. Make atomic commits with clear messages
-3. Maintain YAGNI principle - don't add unnecessary features
-4. Ensure all tests pass before committing
+1. Make atomic commits with clear messages
+1. Maintain YAGNI principle - don't add unnecessary features
+1. Ensure all tests pass before committing
 
 ## License
 

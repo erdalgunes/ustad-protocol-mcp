@@ -139,7 +139,7 @@ Based on preliminary prototyping, we anticipate:
 
 ```python
 @server.tool()
-async def ustad_think(problem: str, context: str = "", 
+async def ustad_think(problem: str, context: str = "",
                       num_thoughts: int = 8) -> Dict:
     perspectives = select_perspectives(problem, num_thoughts)
     dialogue = await orchestrate_dialogue(perspectives, problem, context)
@@ -254,7 +254,7 @@ Mandatory collaborative analysis prevents premature solutions:
 
 #figure(
   ```
-  User Query → Intent Analysis → Multi-Perspective Research → 
+  User Query → Intent Analysis → Multi-Perspective Research →
   Collaborative Planning → Systematic Execution
   ```,
   caption: "Deliberative process preventing impulsive responses"

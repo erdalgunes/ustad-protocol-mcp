@@ -3,13 +3,11 @@
 
 import asyncio
 import json
-import sys
-from typing import Any, Dict
 
-from mcp.server import Server
 from mcp import stdio_server
-from .perfect_collaborative_bot import PerfectCollaborativeBatchOfThought
+from mcp.server import Server
 
+from .perfect_collaborative_bot import PerfectCollaborativeBatchOfThought
 
 # Create the MCP server
 app = Server("ustad")
@@ -20,22 +18,21 @@ bot = None
 
 @app.call_tool()
 async def ustad_think(problem: str, context: str = "", num_thoughts: int = 8) -> str:
-    """
-    Multi-round collaborative dialogue where 8 AI perspectives debate, 
+    """Multi-round collaborative dialogue where 8 AI perspectives debate,
     challenge each other, and reach consensus through structured discussion.
-    
+
     Args:
         problem: The problem or question to analyze collaboratively
         context: Additional context, constraints, or requirements
         num_thoughts: Number of perspectives (max 8 for optimal dialogue)
-    
+
     Returns:
         JSON string with collaborative analysis results
     """
     global bot
     if not bot:
         bot = PerfectCollaborativeBatchOfThought()
-    
+
     try:
         result = await bot.think(problem, context)
         return json.dumps(result, indent=2)

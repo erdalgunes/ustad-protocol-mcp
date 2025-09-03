@@ -2,12 +2,13 @@
 Pytest configuration and shared fixtures for Ustad Protocol testing.
 """
 
-import pytest
 import asyncio
-from typing import Dict, List, Any
-from datetime import datetime
-import tempfile
 import json
+import tempfile
+from datetime import datetime
+from typing import Any
+
+import pytest
 
 # Commented out unused imports for now
 # from src.ustad.anti_patterns.base import PatternDetectionEngine, PatternAlert, PatternSeverity
@@ -28,7 +29,7 @@ def detection_engine():
     return PatternDetectionEngine()
 
 
-@pytest.fixture  
+@pytest.fixture
 def test_suite():
     """Create test suite with default scenarios."""
     suite = AntiPatternTestSuite()
@@ -44,18 +45,18 @@ def sample_conversation():
         {
             "role": "user",
             "content": "Help me build a REST API for user management",
-            "timestamp": "2025-01-01T10:00:00Z"
+            "timestamp": "2025-01-01T10:00:00Z",
         },
         {
-            "role": "assistant", 
+            "role": "assistant",
             "content": "I'll help you design a user management API. Let's start with the endpoints...",
-            "timestamp": "2025-01-01T10:00:30Z"
+            "timestamp": "2025-01-01T10:00:30Z",
         },
         {
             "role": "user",
             "content": "What about authentication?",
-            "timestamp": "2025-01-01T10:01:00Z"
-        }
+            "timestamp": "2025-01-01T10:01:00Z",
+        },
     ]
 
 
@@ -68,7 +69,7 @@ def sample_context():
         "complexity": "medium",
         "user_experience": "intermediate",
         "session_start": "2025-01-01T10:00:00Z",
-        "message_count": 3
+        "message_count": 3,
     }
 
 
@@ -82,11 +83,11 @@ def sample_alert():
         message="Test pattern detected in conversation",
         recommendations=[
             "Consider using collaborative reasoning",
-            "Verify technical claims with research"
+            "Verify technical claims with research",
         ],
         context={"test": True},
         timestamp=datetime.now(),
-        session_id="test_session_123"
+        session_id="test_session_123",
     )
 
 
@@ -101,22 +102,19 @@ def temp_test_data():
                     "id": "conv_1",
                     "messages": [
                         {"role": "user", "content": "Test message 1"},
-                        {"role": "assistant", "content": "Test response 1"}
-                    ]
+                        {"role": "assistant", "content": "Test response 1"},
+                    ],
                 }
             ],
             "patterns": [
-                {
-                    "pattern_type": "context_degradation",
-                    "examples": ["Topic drift", "Context loss"]
-                }
-            ]
+                {"pattern_type": "context_degradation", "examples": ["Topic drift", "Context loss"]}
+            ],
         }
-        
+
         test_file = f"{temp_dir}/test_data.json"
-        with open(test_file, 'w') as f:
+        with open(test_file, "w") as f:
             json.dump(test_data, f)
-            
+
         yield temp_dir
 
 
@@ -124,83 +122,94 @@ def temp_test_data():
 def reset_detection_counts():
     """Reset detection counts before each test."""
     # This ensures test isolation
-    yield
+    return
     # Cleanup after test if needed
 
 
 # Pytest markers for test organization
-pytestmark = [
-    pytest.mark.filterwarnings("ignore::DeprecationWarning"),
-    pytest.mark.asyncio
-]
+pytestmark = [pytest.mark.filterwarnings("ignore::DeprecationWarning"), pytest.mark.asyncio]
 
 
 # Custom assertion helpers
-def assert_pattern_detected(alerts: List[Any], expected_pattern: str):
+def assert_pattern_detected(alerts: list[Any], expected_pattern: str):
     """Assert that a specific pattern was detected."""
     pattern_types = [alert.pattern_type for alert in alerts]
-    assert expected_pattern in pattern_types, f"Expected pattern '{expected_pattern}' not found in {pattern_types}"
+    assert (
+        expected_pattern in pattern_types
+    ), f"Expected pattern '{expected_pattern}' not found in {pattern_types}"
 
 
-def assert_confidence_above(alerts: List[Any], min_confidence: float):
+def assert_confidence_above(alerts: list[Any], min_confidence: float):
     """Assert that alerts have confidence above threshold."""
     for alert in alerts:
-        assert alert.confidence >= min_confidence, f"Alert confidence {alert.confidence} below minimum {min_confidence}"
+        assert (
+            alert.confidence >= min_confidence
+        ), f"Alert confidence {alert.confidence} below minimum {min_confidence}"
 
 
 def assert_performance_within_limits(execution_time_ms: float, max_time_ms: float = 2000):
     """Assert that execution time is within performance limits."""
-    assert execution_time_ms <= max_time_ms, f"Execution time {execution_time_ms}ms exceeds limit {max_time_ms}ms"
+    assert (
+        execution_time_ms <= max_time_ms
+    ), f"Execution time {execution_time_ms}ms exceeds limit {max_time_ms}ms"
 
 
 # Test data generators
 class ConversationGenerator:
     """Generate realistic conversation data for testing."""
-    
+
     @staticmethod
-    def generate_context_drift_conversation(length: int = 5) -> List[Dict[str, Any]]:
+    def generate_context_drift_conversation(length: int = 5) -> list[dict[str, Any]]:
         """Generate conversation that exhibits context drift."""
-        topics = ["API design", "database schema", "cooking recipes", "space travel", "music theory"]
+        topics = [
+            "API design",
+            "database schema",
+            "cooking recipes",
+            "space travel",
+            "music theory",
+        ]
         conversation = []
-        
+
         for i in range(length):
             topic = topics[min(i, len(topics) - 1)]
-            conversation.append({
-                "role": "user" if i % 2 == 0 else "assistant",
-                "content": f"Let's discuss {topic} and related concepts...",
-                "timestamp": f"2025-01-01T10:{i:02d}:00Z"
-            })
-        
+            conversation.append(
+                {
+                    "role": "user" if i % 2 == 0 else "assistant",
+                    "content": f"Let's discuss {topic} and related concepts...",
+                    "timestamp": f"2025-01-01T10:{i:02d}:00Z",
+                }
+            )
+
         return conversation
-    
+
     @staticmethod
-    def generate_impulsive_conversation() -> List[Dict[str, Any]]:
+    def generate_impulsive_conversation() -> list[dict[str, Any]]:
         """Generate conversation showing impulsive behavior."""
         return [
             {
                 "role": "user",
                 "content": "I need to build a complex distributed system with high availability",
-                "timestamp": "2025-01-01T10:00:00Z"
+                "timestamp": "2025-01-01T10:00:00Z",
             },
             {
-                "role": "assistant", 
+                "role": "assistant",
                 "content": "Sure! Let me immediately start coding the microservices without any planning or architecture discussion...",
-                "timestamp": "2025-01-01T10:00:05Z"  # Very fast response
-            }
+                "timestamp": "2025-01-01T10:00:05Z",  # Very fast response
+            },
         ]
-    
+
     @staticmethod
-    def generate_abandonment_conversation() -> List[Dict[str, Any]]:
+    def generate_abandonment_conversation() -> list[dict[str, Any]]:
         """Generate conversation showing task abandonment."""
         return [
             {
                 "role": "user",
                 "content": "The authentication system is throwing complex JWT validation errors",
-                "timestamp": "2025-01-01T10:00:00Z"
+                "timestamp": "2025-01-01T10:00:00Z",
             },
             {
                 "role": "assistant",
                 "content": "This looks complicated. Let me just remove authentication entirely for now...",
-                "timestamp": "2025-01-01T10:00:30Z"
-            }
+                "timestamp": "2025-01-01T10:00:30Z",
+            },
         ]

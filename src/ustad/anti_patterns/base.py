@@ -1,36 +1,35 @@
-"""
-Base classes and utilities for cognitive scaffolding and support tools.
-"""
+"""Base classes and utilities for cognitive scaffolding and support tools."""
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
-import json
+from enum import Enum
+from typing import Any
 
 
 class SupportSeverity(Enum):
     """Support intensity levels for cognitive scaffolding"""
-    LOW = "low"           # Light guidance, gentle suggestion
-    MEDIUM = "medium"     # Clear assistance, helpful recommendation  
-    HIGH = "high"         # Strong support, important scaffolding needed
-    CRITICAL = "critical" # Intensive support, immediate assistance required
+
+    LOW = "low"  # Light guidance, gentle suggestion
+    MEDIUM = "medium"  # Clear assistance, helpful recommendation
+    HIGH = "high"  # Strong support, important scaffolding needed
+    CRITICAL = "critical"  # Intensive support, immediate assistance required
 
 
 @dataclass
 class SupportAlert:
     """Alert generated when cognitive scaffolding support is recommended"""
-    support_type: str                   # Type of cognitive support needed
-    severity: SupportSeverity          # How much assistance is recommended
-    confidence: float                   # Confidence in recommendation (0-1)
-    message: str                        # Human-readable description
-    recommendations: List[str]          # Actionable support suggestions
-    context: Dict[str, Any]            # Additional context data
-    timestamp: datetime                 # When support was recommended
-    session_id: str                    # Which session this relates to
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    support_type: str  # Type of cognitive support needed
+    severity: SupportSeverity  # How much assistance is recommended
+    confidence: float  # Confidence in recommendation (0-1)
+    message: str  # Human-readable description
+    recommendations: list[str]  # Actionable support suggestions
+    context: dict[str, Any]  # Additional context data
+    timestamp: datetime  # When support was recommended
+    session_id: str  # Which session this relates to
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert support alert to dictionary for JSON serialization"""
         return {
             "support_type": self.support_type,
@@ -40,11 +39,11 @@ class SupportAlert:
             "recommendations": self.recommendations,
             "context": self.context,
             "timestamp": self.timestamp.isoformat(),
-            "session_id": self.session_id
+            "session_id": self.session_id,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "SupportAlert":
+    def from_dict(cls, data: dict[str, Any]) -> "SupportAlert":
         """Create support alert from dictionary"""
         return cls(
             support_type=data["support_type"],
@@ -54,60 +53,57 @@ class SupportAlert:
             recommendations=data["recommendations"],
             context=data["context"],
             timestamp=datetime.fromisoformat(data["timestamp"]),
-            session_id=data["session_id"]
+            session_id=data["session_id"],
         )
 
 
 class CognitiveScaffoldTool(ABC):
     """Base class for all cognitive scaffolding support tools"""
-    
+
     def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
         self.enabled = True
         self.support_count = 0
         self.last_support = None
-        
+
     @abstractmethod
-    def analyze(self, 
-                conversation_history: List[Dict[str, Any]], 
-                current_context: Dict[str, Any],
-                session_id: str) -> List[SupportAlert]:
-        """
-        Analyze conversation for cognitive support opportunities.
-        
+    def analyze(
+        self,
+        conversation_history: list[dict[str, Any]],
+        current_context: dict[str, Any],
+        session_id: str,
+    ) -> list[SupportAlert]:
+        """Analyze conversation for cognitive support opportunities.
+
         Args:
             conversation_history: List of previous messages/exchanges
             current_context: Current conversation state and metadata
             session_id: Unique identifier for this session
-            
+
         Returns:
             List of cognitive support recommendations
         """
-        pass
-    
+
     @abstractmethod
-    def get_scaffolding_suggestions(self, 
-                                  alert: SupportAlert,
-                                  context: Dict[str, Any]) -> List[str]:
-        """
-        Get specific scaffolding suggestions for cognitive support.
-        
+    def get_scaffolding_suggestions(
+        self, alert: SupportAlert, context: dict[str, Any]
+    ) -> list[str]:
+        """Get specific scaffolding suggestions for cognitive support.
+
         Args:
             alert: The support alert that was recommended
             context: Additional context for generating suggestions
-            
+
         Returns:
             List of actionable scaffolding recommendations
         """
-        pass
-    
-    def is_support_needed(self, 
-                         conversation_history: List[Dict[str, Any]], 
-                         context: Dict[str, Any]) -> Tuple[bool, float]:
-        """
-        Quick check if cognitive support is needed without full analysis.
-        
+
+    def is_support_needed(
+        self, conversation_history: list[dict[str, Any]], context: dict[str, Any]
+    ) -> tuple[bool, float]:
+        """Quick check if cognitive support is needed without full analysis.
+
         Returns:
             (support_needed, confidence_score)
         """
@@ -116,15 +112,17 @@ class CognitiveScaffoldTool(ABC):
             max_confidence = max(alert.confidence for alert in alerts)
             return True, max_confidence
         return False, 0.0
-    
-    def create_support_alert(self,
-                           support_type: str,
-                           severity: SupportSeverity,
-                           confidence: float,
-                           message: str,
-                           recommendations: List[str],
-                           context: Dict[str, Any],
-                           session_id: str) -> SupportAlert:
+
+    def create_support_alert(
+        self,
+        support_type: str,
+        severity: SupportSeverity,
+        confidence: float,
+        message: str,
+        recommendations: list[str],
+        context: dict[str, Any],
+        session_id: str,
+    ) -> SupportAlert:
         """Helper method to create standardized support alerts"""
         alert = SupportAlert(
             support_type=support_type,
@@ -134,51 +132,53 @@ class CognitiveScaffoldTool(ABC):
             recommendations=recommendations,
             context=context,
             timestamp=datetime.now(),
-            session_id=session_id
+            session_id=session_id,
         )
-        
+
         self.support_count += 1
         self.last_support = alert.timestamp
-        
+
         return alert
-    
-    def get_statistics(self) -> Dict[str, Any]:
+
+    def get_statistics(self) -> dict[str, Any]:
         """Get support statistics for this tool"""
         return {
             "name": self.name,
             "enabled": self.enabled,
             "support_count": self.support_count,
-            "last_support": self.last_support.isoformat() if self.last_support else None
+            "last_support": self.last_support.isoformat() if self.last_support else None,
         }
 
 
 class CognitiveScaffoldingEngine:
     """Coordinates multiple cognitive scaffolding support tools"""
-    
+
     def __init__(self):
-        self.scaffold_tools: Dict[str, CognitiveScaffoldTool] = {}
-        self.support_history: List[SupportAlert] = []
+        self.scaffold_tools: dict[str, CognitiveScaffoldTool] = {}
+        self.support_history: list[SupportAlert] = []
         self.enabled = True
-        
+
     def register_scaffold_tool(self, tool: CognitiveScaffoldTool):
         """Register a new cognitive scaffolding tool"""
         self.scaffold_tools[tool.name] = tool
-        
+
     def unregister_scaffold_tool(self, name: str):
         """Remove a scaffolding tool"""
         if name in self.scaffold_tools:
             del self.scaffold_tools[name]
-    
-    def analyze_all(self, 
-                   conversation_history: List[Dict[str, Any]], 
-                   current_context: Dict[str, Any],
-                   session_id: str) -> List[SupportAlert]:
+
+    def analyze_all(
+        self,
+        conversation_history: list[dict[str, Any]],
+        current_context: dict[str, Any],
+        session_id: str,
+    ) -> list[SupportAlert]:
         """Run all enabled scaffolding tools and return consolidated support recommendations"""
         if not self.enabled:
             return []
-            
+
         all_alerts = []
-        
+
         for tool in self.scaffold_tools.values():
             if tool.enabled:
                 try:
@@ -187,24 +187,25 @@ class CognitiveScaffoldingEngine:
                 except Exception as e:
                     # Log error but don't fail entire scaffolding analysis
                     print(f"Error in scaffolding tool {tool.name}: {e}")
-                    
+
         # Sort by severity and confidence
         all_alerts.sort(key=lambda x: (x.severity.value, x.confidence), reverse=True)
-        
+
         # Store in history
         self.support_history.extend(all_alerts)
-        
+
         return all_alerts
-    
-    def get_active_support(self, session_id: str) -> List[SupportAlert]:
+
+    def get_active_support(self, session_id: str) -> list[SupportAlert]:
         """Get recent support recommendations for a specific session"""
         recent_alerts = [
-            alert for alert in self.support_history[-50:]  # Last 50 alerts
+            alert
+            for alert in self.support_history[-50:]  # Last 50 alerts
             if alert.session_id == session_id
         ]
         return recent_alerts
-    
-    def get_summary_report(self) -> Dict[str, Any]:
+
+    def get_summary_report(self) -> dict[str, Any]:
         """Get summary of all scaffolding tool activity"""
         return {
             "enabled": self.enabled,
@@ -212,7 +213,7 @@ class CognitiveScaffoldingEngine:
             "active_scaffold_tools": sum(1 for t in self.scaffold_tools.values() if t.enabled),
             "total_support_recommendations": len(self.support_history),
             "scaffold_tool_stats": [t.get_statistics() for t in self.scaffold_tools.values()],
-            "recent_support": len([a for a in self.support_history[-100:]])  # Last 100
+            "recent_support": len([a for a in self.support_history[-100:]]),  # Last 100
         }
 
 
