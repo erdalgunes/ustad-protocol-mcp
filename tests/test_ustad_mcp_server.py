@@ -133,7 +133,7 @@ class TestProcessThought:
         )
 
         assert "error" in result
-        assert result["error"] == "Invalid thought data"
+        assert result["error"] == "ThoughtValidationError"
         assert "message" in result
         assert "details" in result
 

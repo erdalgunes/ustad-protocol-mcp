@@ -12,6 +12,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from src.auth import create_auth_verifier
+from src.exceptions import InvalidThoughtError, ThoughtValidationError
 from src.rate_limiting import create_rate_limiter
 
 # Import our sequential thinking implementation and auth
@@ -115,15 +116,11 @@ async def process_thought(
         result["branches"] = list(thinking_server.get_branches().keys())
 
         return result
-    except ValueError as e:
+    except (InvalidThoughtError, ThoughtValidationError) as e:
         # Log validation errors for debugging
         logger.warning("Thought validation error: %s", e)
-        # Return structured error response
-        return {
-            "error": "Invalid thought data",
-            "message": "The provided thought data contains invalid values",
-            "details": str(e),
-        }
+        # Return structured error response using our custom exception's to_dict method
+        return e.to_dict()
     except Exception:
         # Log unexpected errors with full traceback
         logger.exception("Unexpected error in process_thought")

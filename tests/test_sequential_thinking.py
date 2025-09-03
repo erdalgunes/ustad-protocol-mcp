@@ -2,6 +2,7 @@
 
 import pytest
 
+from src.exceptions import InvalidThoughtError, ThoughtValidationError
 from src.sequential_thinking import SequentialThinkingServer, ThoughtData
 
 
@@ -175,7 +176,7 @@ class TestSequentialThinkingServer:
         """Test validation for missing required fields."""
         server = SequentialThinkingServer()
 
-        with pytest.raises(ValueError, match="Missing required field: thought"):
+        with pytest.raises(InvalidThoughtError, match="Missing required field: thought"):
             server.process_thought(
                 {
                     "thoughtNumber": 1,
@@ -188,7 +189,7 @@ class TestSequentialThinkingServer:
         """Test validation for empty thought content."""
         server = SequentialThinkingServer()
 
-        with pytest.raises(ValueError, match="Thought cannot be empty"):
+        with pytest.raises(ThoughtValidationError, match="Thought cannot be empty"):
             server.process_thought(
                 {
                     "thought": "",
@@ -198,7 +199,7 @@ class TestSequentialThinkingServer:
                 }
             )
 
-        with pytest.raises(ValueError, match="Thought cannot be empty"):
+        with pytest.raises(ThoughtValidationError, match="Thought cannot be empty"):
             server.process_thought(
                 {
                     "thought": "   ",
@@ -212,7 +213,7 @@ class TestSequentialThinkingServer:
         """Test validation for invalid thought number."""
         server = SequentialThinkingServer()
 
-        with pytest.raises(ValueError, match="Invalid thought number: 0"):
+        with pytest.raises(ThoughtValidationError, match="Invalid thought number: 0"):
             server.process_thought(
                 {
                     "thought": "Test",
@@ -222,7 +223,7 @@ class TestSequentialThinkingServer:
                 }
             )
 
-        with pytest.raises(ValueError, match="Invalid thought number: -1"):
+        with pytest.raises(ThoughtValidationError, match="Invalid thought number: -1"):
             server.process_thought(
                 {
                     "thought": "Test",
@@ -245,7 +246,7 @@ class TestSequentialThinkingServer:
             }
         )
 
-        with pytest.raises(ValueError, match="Cannot revise non-existent thought 5"):
+        with pytest.raises(ThoughtValidationError, match="Cannot revise non-existent thought 5"):
             server.process_thought(
                 {
                     "thought": "Revision",
