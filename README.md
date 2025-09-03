@@ -1,4 +1,4 @@
-# Ustad Protocol MCP Server
+# Ustad Protocol MCP
 
 > **"Ustad"** (Turkish/Urdu: "Master/Teacher") - Minimal MCP server with sequential thinking and search
 
@@ -21,8 +21,8 @@
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd ustad-protocol
+git clone https://github.com/erdalgunes/ustad-protocol-mcp.git
+cd ustad-protocol-mcp
 
 # Configure environment
 cp .env.example .env

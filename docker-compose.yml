@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  ustad-protocol:
+  ustad-protocol-mcp:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ustad-protocol-server
+    container_name: ustad-protocol-mcp-server
     ports:
       - "8000:8000"
     environment:

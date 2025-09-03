@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ustad-protocol"
+name = "ustad-protocol-mcp"
 version = "1.0.0"
 description = "Minimal MCP server with sequential thinking and search capabilities"
 authors = ["Ustad Protocol Team"]

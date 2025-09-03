@@ -15,7 +15,7 @@ from src.sequential_thinking import SequentialThinkingServer
 
 # Initialize FastMCP server
 mcp = FastMCP(
-    name="ustad-protocol",
+    name="ustad-protocol-mcp",
     description="Minimal MCP server with sequential thinking and search capabilities",
 )
 
@@ -167,7 +167,7 @@ async def health_check() -> dict[str, Any]:
     """
     return {
         "status": "healthy",
-        "server": "ustad-protocol",
+        "server": "ustad-protocol-mcp",
         "version": "1.0.0",
         "tools": ["ustad_think", "ustad_search"],
         "thinking_history_length": len(thinking_server.get_thought_history()),
