@@ -175,6 +175,26 @@ async def health_check() -> dict[str, Any]:
     }
 
 
+@mcp.resource("capabilities")  # type: ignore[misc]
+async def capabilities() -> dict[str, Any]:
+    """
+    Capabilities endpoint for version and feature detection.
+
+    Returns:
+        Dictionary with server version, features, and available tools
+    """
+    return {
+        "version": "0.2.0",
+        "features": {
+            "intent_analysis": False,
+            "auto_fact_check": False,
+            "guided_thinking": True,
+            "min_thinking_steps": 10,
+        },
+        "tools": ["ustad_think", "ustad_search"],
+    }
+
+
 if __name__ == "__main__":
     # For containerized deployment with SSE
     import uvicorn
@@ -201,11 +221,27 @@ if __name__ == "__main__":
         """Health check endpoint."""
         return JSONResponse({"status": "healthy", "server": "ustad-protocol", "version": "1.0.0"})
 
+    async def capabilities_endpoint(request: Any) -> Any:  # Returns JSONResponse
+        """Capabilities endpoint for version and feature detection."""
+        return JSONResponse(
+            {
+                "version": "0.2.0",
+                "features": {
+                    "intent_analysis": False,
+                    "auto_fact_check": False,
+                    "guided_thinking": True,
+                    "min_thinking_steps": 10,
+                },
+                "tools": ["ustad_think", "ustad_search"],
+            }
+        )
+
     # Create Starlette app for SSE
     sse_app = Starlette(
         routes=[
             Route("/sse", handle_sse, methods=["GET"]),
             Route("/health", health_check, methods=["GET"]),
+            Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             Mount("/messages/", app=transport.handle_post_message),
         ]
     )
