@@ -10,8 +10,8 @@ packages = [{include = "src"}]
 python = "^3.11"
 fastmcp = "^2.0.0"
 mcp = "^1.0.0"
-fastapi = "^0.104.0"
-httpx = "^0.25.0"
+fastapi = "^0.115.12"
+httpx = "^0.28.1"
 uvicorn = {extras = ["standard"], version = "^0.24.0"}
 pydantic = "^2.5.0"
 
