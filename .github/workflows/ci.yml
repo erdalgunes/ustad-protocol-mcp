@@ -1,0 +1,334 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, feature/*]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Cancel in-progress runs when a new run is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_VERSION: "1.8.2"
+  POETRY_HOME: /opt/poetry
+  POETRY_VIRTUALENVS_IN_PROJECT: true
+  POETRY_NO_INTERACTION: 1
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PYTHONDONTWRITEBYTECODE: 1
+  PYTHONUNBUFFERED: 1
+
+jobs:
+  validate-lockfile:
+    name: Validate Poetry Lock
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Validate poetry.lock exists
+        run: |
+          if [ ! -f poetry.lock ]; then
+            echo "Error: poetry.lock file not found!"
+            echo "Run 'poetry lock' locally and commit the file"
+            exit 1
+          fi
+      
+      - name: Validate poetry.lock
+        run: |
+          poetry check --lock
+          poetry lock --check
+      
+      - name: Check for outdated dependencies
+        run: poetry show --outdated
+        continue-on-error: true
+
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [validate-lockfile]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Load cached venv
+        id: cache-poetry-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+            .venv
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      
+      - name: Run Ruff linter
+        run: poetry run ruff check . --output-format=github
+      
+      - name: Run Ruff formatter check
+        run: poetry run ruff format . --check
+      
+      - name: Run Black formatter check
+        run: poetry run black . --check --diff
+      
+      - name: Run isort import checker
+        run: poetry run isort . --check-only --diff
+      
+      - name: Run pydocstyle
+        run: poetry run pydocstyle src/
+
+  type-check:
+    name: Type Checking
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [validate-lockfile]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Load cached venv
+        id: cache-poetry-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+            .venv
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      
+      - name: Run mypy type checker
+        run: poetry run mypy src/ --strict
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [validate-lockfile]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Load cached venv
+        id: cache-poetry-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+            .venv
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      
+      - name: Run Bandit security scan
+        run: poetry run bandit -r src/ -f github
+        continue-on-error: true
+      
+      - name: Run pip-audit vulnerability scan
+        run: |
+          poetry export -f requirements.txt --without-hashes | \
+          poetry run pip-audit -r /dev/stdin --desc
+        continue-on-error: true
+      
+      - name: Run Safety vulnerability check
+        run: |
+          poetry export -f requirements.txt --without-hashes | \
+          poetry run safety check --stdin --json
+        continue-on-error: true
+      
+      - name: Check for known vulnerabilities in dependencies
+        run: poetry run pip check
+
+  test:
+    name: Test & Coverage
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    needs: [validate-lockfile]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Get Poetry cache directory
+        id: poetry-cache-dir
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "dir=$HOME/.cache/pypoetry" >> $GITHUB_OUTPUT
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            echo "dir=$LOCALAPPDATA\\pypoetry\\Cache" >> $GITHUB_OUTPUT
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo "dir=$HOME/Library/Caches/pypoetry" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.poetry-cache-dir.outputs.dir }}
+            .venv
+          key: venv-${{ matrix.os }}-py${{ matrix.python-version }}-poetry${{ env.POETRY_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ matrix.os }}-py${{ matrix.python-version }}-poetry${{ env.POETRY_VERSION }}-
+            venv-${{ matrix.os }}-py${{ matrix.python-version }}-
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      
+      - name: Run tests with coverage (parallel)
+        shell: bash
+        run: |
+          poetry run pytest tests/ \
+            -n auto \
+            --dist loadscope \
+            --cov=src \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-fail-under=80 \
+            --timeout=60 \
+            --timeout-method=thread \
+            -v
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  code-quality:
+    name: Code Quality Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    needs: [validate-lockfile]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Load cached venv
+        id: cache-poetry-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry/cache
+            ~/.cache/pypoetry/artifacts
+            .venv
+          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      
+      - name: Generate code quality report
+        run: |
+          echo "## Code Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Complexity Analysis" >> $GITHUB_STEP_SUMMARY
+          poetry run python -m mccabe --min 10 src/ || true >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Code Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          find src/ -name "*.py" | xargs wc -l | tail -1 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  all-checks:
+    name: All Checks Passed
+    needs: [validate-lockfile, lint, type-check, security, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All checks passed
+        run: echo "✅ All CI checks passed successfully!"

@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -16,7 +20,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -27,18 +30,39 @@ MANIFEST
 *.manifest
 *.spec
 
-# Testing
-.pytest_cache/
-.coverage
+# Unit test / coverage reports
 htmlcov/
 .tox/
 .nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
+.pytest_cache/
+cover/
 
-# Virtual environments
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Ruff
+.ruff_cache/
+
+# Environments
 .env
 .venv
 env/
@@ -47,11 +71,24 @@ ENV/
 env.bak/
 venv.bak/
 
+# Poetry
+# IMPORTANT: poetry.lock should NOT be ignored for applications
+# It should be committed to ensure reproducible builds
+# Only ignore it for libraries that are meant to be installed as dependencies
+# Since this is an application, we commit poetry.lock
+dist/
+
 # IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*.swn
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
@@ -61,11 +98,27 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+*~
 
-# Project specific
-*.png
-*.jpg
-*.jpeg
-*.gif
+# Logs
 *.log
-ui_dump.xml
+logs/
+
+# Local development
+.env.local
+.env.*.local
+
+# Pre-commit
+.pre-commit-config.yaml.lock
+
+# Documentation build
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+tmp/
+temp/

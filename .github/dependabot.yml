@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Python dependencies via Poetry
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    allow:
+      - dependency-type: "all"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "mypy"
+          - "ruff"
+          - "black"
+          - "isort"
+          - "bandit"
+          - "safety"
+          - "pip-audit"
+      type-stubs:
+        patterns:
+          - "types-*"
+    ignore:
+      # Don't update Python itself
+      - dependency-name: "python"
+    reviewers:
+      - "@teamname"  # Replace with actual team/user
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
