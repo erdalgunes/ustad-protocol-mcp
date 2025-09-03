@@ -10,6 +10,8 @@ from typing import Any
 
 from fastmcp import FastMCP
 
+from src.constants import CAPABILITIES_DATA, HEALTH_DATA
+
 # Import our sequential thinking implementation
 from src.sequential_thinking import SequentialThinkingServer
 
@@ -162,14 +164,14 @@ async def health_check() -> dict[str, Any]:
     Returns:
         Dictionary with server health status
     """
-    return {
-        "status": "healthy",
-        "server": "ustad-protocol-mcp",
-        "version": "1.0.0",
-        "tools": ["ustad_think", "ustad_search"],
-        "thinking_history_length": len(thinking_server.get_thought_history()),
-        "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
-    }
+    health_data = HEALTH_DATA.copy()
+    health_data.update(
+        {
+            "thinking_history_length": len(thinking_server.get_thought_history()),
+            "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
+        }
+    )
+    return health_data
 
 
 @mcp.resource("capabilities://server/info")  # type: ignore[misc]
@@ -180,16 +182,7 @@ async def capabilities() -> dict[str, Any]:
     Returns:
         Dictionary with server version, features, and available tools
     """
-    return {
-        "version": "0.2.0",
-        "features": {
-            "intent_analysis": False,
-            "auto_fact_check": False,
-            "guided_thinking": True,
-            "min_thinking_steps": 10,
-        },
-        "tools": ["ustad_think", "ustad_search"],
-    }
+    return CAPABILITIES_DATA.copy()
 
 
 if __name__ == "__main__":
@@ -216,22 +209,18 @@ if __name__ == "__main__":
 
     async def health_check(request: Any) -> Any:  # Returns JSONResponse
         """Health check endpoint."""
-        return JSONResponse({"status": "healthy", "server": "ustad-protocol", "version": "1.0.0"})
+        health_data = HEALTH_DATA.copy()
+        health_data.update(
+            {
+                "thinking_history_length": len(thinking_server.get_thought_history()),
+                "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
+            }
+        )
+        return JSONResponse(health_data)
 
     async def capabilities_endpoint(request: Any) -> Any:  # Returns JSONResponse
         """Capabilities endpoint for version and feature detection."""
-        return JSONResponse(
-            {
-                "version": "0.2.0",
-                "features": {
-                    "intent_analysis": False,
-                    "auto_fact_check": False,
-                    "guided_thinking": True,
-                    "min_thinking_steps": 10,
-                },
-                "tools": ["ustad_think", "ustad_search"],
-            }
-        )
+        return JSONResponse(CAPABILITIES_DATA)
 
     # Create Starlette app for SSE
     sse_app = Starlette(

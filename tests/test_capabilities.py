@@ -9,6 +9,8 @@ from fastapi.testclient import TestClient
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from src.constants import CAPABILITIES_DATA
+
 
 class TestCapabilitiesEndpoint:
     """Test suite for /capabilities endpoint."""
@@ -23,21 +25,10 @@ class TestCapabilitiesEndpoint:
         from starlette.responses import JSONResponse
         from starlette.routing import Route
 
-        # Mock the capabilities endpoint for testing
+        # Use actual server constants for testing
         async def capabilities_endpoint(request):
-            """Return capabilities information."""
-            return JSONResponse(
-                {
-                    "version": "0.2.0",
-                    "features": {
-                        "intent_analysis": False,
-                        "auto_fact_check": False,
-                        "guided_thinking": True,
-                        "min_thinking_steps": 10,
-                    },
-                    "tools": ["ustad_think", "ustad_search"],
-                }
-            )
+            """Return capabilities information using actual server constants."""
+            return JSONResponse(CAPABILITIES_DATA)
 
         # Create test app
         test_app = Starlette(
