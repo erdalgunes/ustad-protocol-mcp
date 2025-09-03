@@ -14,6 +14,7 @@ from fastmcp import FastMCP
 from src.search_service import tavily_search
 from src.sequential_thinking import SequentialThinkingServer
 from src.sse_events import emit_fact_check_triggered, emit_thinking_step
+from src.sse_transport import create_development_emitter
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -127,6 +128,10 @@ async def health_check() -> dict[str, Any]:
 
 
 if __name__ == "__main__":
+    # Initialize SSE emitter for guidance events
+    # In development mode, use mock emitter for visibility
+    create_development_emitter()
+
     # For containerized deployment with SSE
     import uvicorn
     from fastapi import FastAPI
