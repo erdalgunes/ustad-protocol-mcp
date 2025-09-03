@@ -14,49 +14,41 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.11"
-  POETRY_VERSION: "1.8.2"
-  POETRY_HOME: /opt/poetry
-  POETRY_VIRTUALENVS_IN_PROJECT: true
-  POETRY_NO_INTERACTION: 1
+  UV_CACHE_DIR: ~/.cache/uv
   PIP_DISABLE_PIP_VERSION_CHECK: 1
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
 
 jobs:
   validate-lockfile:
-    name: Validate Poetry Lock
+    name: Validate UV Lock
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Validate poetry.lock exists
+      - name: Validate uv.lock exists
         run: |
-          if [ ! -f poetry.lock ]; then
-            echo "Error: poetry.lock file not found!"
-            echo "Run 'poetry lock' locally and commit the file"
+          if [ ! -f uv.lock ]; then
+            echo "Error: uv.lock file not found!"
+            echo "Run 'uv lock' locally and commit the file"
             exit 1
           fi
 
-      - name: Validate poetry.lock
+      - name: Validate uv.lock
         run: |
-          poetry check --lock
-          poetry lock --check
+          uv lock --locked
 
       - name: Check for outdated dependencies
-        run: poetry show --outdated
+        run: uv tree --outdated
         continue-on-error: true
 
   lint:
@@ -67,47 +59,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cache-poetry-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-            .venv
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --frozen
 
       - name: Run Ruff linter
-        run: poetry run ruff check . --output-format=github
+        run: uv run ruff check . --output-format=github
 
       - name: Run Ruff formatter check
-        run: poetry run ruff format . --check
+        run: uv run ruff format . --check
 
       - name: Run Black formatter check
-        run: poetry run black . --check --diff
+        run: uv run black . --check --diff
 
       - name: Run isort import checker
-        run: poetry run isort . --check-only --diff
+        run: uv run isort . --check-only --diff
 
       - name: Run pydocstyle
-        run: poetry run pydocstyle src/
+        run: uv run pydocstyle src/
 
   type-check:
     name: Type Checking
@@ -117,35 +93,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cache-poetry-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-            .venv
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --frozen
 
       - name: Run mypy type checker
-        run: poetry run mypy src/ --strict
+        run: uv run mypy src/ --strict
 
   security:
     name: Security Scan
@@ -155,51 +115,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cache-poetry-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-            .venv
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --frozen
 
       - name: Run Bandit security scan
-        run: poetry run bandit -r src/ -f github
+        run: uv run bandit -r src/ -f github
         continue-on-error: true
 
       - name: Run pip-audit vulnerability scan
         run: |
-          poetry export -f requirements.txt --without-hashes | \
-          poetry run pip-audit -r /dev/stdin --desc
+          uv export --format=requirements-txt --no-hashes | \
+          uv run pip-audit -r /dev/stdin --desc
         continue-on-error: true
 
       - name: Run Safety vulnerability check
         run: |
-          poetry export -f requirements.txt --without-hashes | \
-          poetry run safety check --stdin --json
+          uv export --format=requirements-txt --no-hashes | \
+          uv run safety check --stdin --json
         continue-on-error: true
 
       - name: Check for known vulnerabilities in dependencies
-        run: poetry run pip check
+        run: uv run python -m pip check
 
   test:
     name: Test & Coverage
@@ -214,48 +158,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Get Poetry cache directory
-        id: poetry-cache-dir
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            echo "dir=$HOME/.cache/pypoetry" >> $GITHUB_OUTPUT
-          elif [ "$RUNNER_OS" == "Windows" ]; then
-            echo "dir=$LOCALAPPDATA\\pypoetry\\Cache" >> $GITHUB_OUTPUT
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            echo "dir=$HOME/Library/Caches/pypoetry" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.poetry-cache-dir.outputs.dir }}
-            .venv
-          key: venv-${{ matrix.os }}-py${{ matrix.python-version }}-poetry${{ env.POETRY_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ matrix.os }}-py${{ matrix.python-version }}-poetry${{ env.POETRY_VERSION }}-
-            venv-${{ matrix.os }}-py${{ matrix.python-version }}-
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --frozen
 
       - name: Run tests with coverage (parallel)
         shell: bash
         run: |
-          poetry run pytest tests/ \
+          uv run pytest tests/ \
             -n auto \
             --dist loadscope \
             --cov=src \
@@ -284,32 +201,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cache-poetry-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-            .venv
-          key: venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-py${{ env.PYTHON_VERSION }}-
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: uv sync --frozen
 
       - name: Generate code quality report
         run: |
@@ -317,7 +218,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Complexity Analysis" >> $GITHUB_STEP_SUMMARY
-          poetry run python -m mccabe --min 10 src/ || true >> $GITHUB_STEP_SUMMARY
+          uv run python -m mccabe --min 10 src/ || true >> $GITHUB_STEP_SUMMARY
 
           echo "### Code Statistics" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
