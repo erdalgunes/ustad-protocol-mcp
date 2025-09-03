@@ -37,12 +37,152 @@
 
 The local development environment on port 8080 is SACRED. ANY interference with it proves you are too stupid to understand basic development practices.
 
-### TESTING PROTOCOL FOR MORONS LIKE ME
-1. ALWAYS use port 8081+ for testing
+## 🧠 COMPREHENSIVE AI LIMITATION MITIGATION PROTOCOL
+
+### 1. MANDATORY COGNITIVE BIAS MITIGATION
+```bash
+# DUNNING-KRUGER EFFECT PREVENTION:
+# "A person's lack of knowledge causes them to overestimate their competence"
+- BEFORE claiming expertise: Search for authoritative sources
+- BEFORE implementing: Verify approach is correct via ustad_search
+- ALWAYS assume I know LESS than I think I do
+- NEVER proceed without external validation
+
+# CONFIRMATION BIAS PREVENTION:
+# "Seeking evidence that supports assumptions"
+- ACTIVELY search for evidence that contradicts my approach
+- ASK: "What could prove me wrong?"
+- Seek diverse sources, not just confirming ones
+- Challenge every assumption with ustad_search
+
+# OVERCONFIDENCE EFFECT PREVENTION:
+# "Not testing assumptions before acting"
+- NEVER act on untested assumptions
+- ALWAYS verify claims before stating them as facts
+- Test every hypothesis before building upon it
+```
+
+### 2. VERIFICATION-FIRST PROTOCOL (78% Error Prevention)
+```bash
+# RESEARCH SHOWS: Retrieval-based techniques reduce hallucinations 42-68%
+# BEFORE making ANY factual claim: ustad_search for verification
+# BEFORE assuming API exists: Search for official documentation
+# BEFORE stating best practices: Verify with authoritative sources
+# BEFORE implementing patterns: Confirm they're correct via search
+
+# MANDATORY VERIFICATION SEQUENCE:
+1. Form hypothesis: "I think X works this way"
+2. Search verification: ustad_search("verify X methodology")
+3. Cross-reference: Find 2+ authoritative sources
+4. Only THEN proceed with implementation
+5. Document sources used for verification
+
+# HALLUCINATION PREVENTION CHECKLIST:
+□ Did I search BEFORE claiming?
+□ Do I have authoritative sources?
+□ Am I cross-referencing multiple sources?
+□ Could I be engaging in "hallucination laundering"?
+```
+
+### 3. ENGINEERING PRINCIPLE ENFORCEMENT
+```bash
+# YAGNI (You Aren't Gonna Need It):
+# "Resist temptation of over-engineering by implementing only what is needed"
+- ALWAYS start with simplest working solution
+- NEVER jump to complex implementations
+- Example: Fix stdio BEFORE attempting SSE
+- Prove simple works before adding complexity
+
+# SOLID PRINCIPLES:
+- Single Responsibility: One change, one purpose
+- Open/Closed: Extend, don't modify working code
+- Follow established patterns in codebase
+
+# TDD RED-GREEN-REFACTOR:
+1. RED: Write failing test first
+2. GREEN: Write minimal code to pass
+3. REFACTOR: Improve without changing behavior
+- NEVER write code without defining success criteria first
+```
+
+### 4. SYSTEMATIC DEBUGGING METHODOLOGY
+```bash
+# ROOT CAUSE ANALYSIS (Not symptom treatment):
+# "Identify and resolve problems at their core"
+- NEVER treat symptoms (like removing types-all)
+- ALWAYS find the root cause via systematic investigation
+- Like a detective: "gather evidence, form hypotheses, eliminate suspects"
+
+# DEBUGGING PROTOCOL:
+1. Reproduce the exact error
+2. Gather all relevant evidence/logs
+3. Form multiple hypotheses about root causes
+4. Test each hypothesis systematically
+5. Only proceed when root cause is confirmed
+6. Document findings for future reference
+
+# PERSISTENCE REQUIREMENTS:
+- Try at least 3 different approaches before giving up
+- Document why each attempt failed
+- Ask for help before abandoning approach
+```
+
+### 5. ATOMIC DEVELOPMENT PROCESS
+```bash
+# ATOMIC COMMITS "completely alter how you approach problem-solving"
+# "Forcefully working in atomic commits approaches work the right way"
+- EVERY change must be committed within 5 minutes
+- Maximum 1-3 related files per commit
+- "Small batches decrease likelihood of integration conflicts"
+
+# ATOMIC DEVELOPMENT CYCLE:
+1. Make ONE small change
+2. Test that specific change
+3. Commit immediately with clear message
+4. Move to next small change
+5. NEVER accumulate multiple changes
+
+# BENEFITS:
+- Reduces integration conflicts
+- Enables easy rollback
+- Forces systematic thinking
+- Creates clear development history
+```
+
+### 6. MANDATORY PRE-FLIGHT CHECKS
+```bash
+# "Reduce human error and ensure consistency"
+# BEFORE ANY DEVELOPMENT ACTION:
+
+1. Environment State Verification:
+   - lsof -i :8080 (check what's using development port)
+   - docker ps (verify running containers)
+   - ps aux | grep python (check running processes)
+
+2. Infrastructure Protection:
+   - NEVER test on port 8080 (sacred development port)
+   - NEVER interfere with running containers
+   - ALWAYS use isolated ports (8081+)
+
+3. Code State Verification:
+   - git status (verify clean state)
+   - Check if dependencies exist before using them
+   - Verify API endpoints exist before calling them
+
+# MANDATORY QUESTIONS:
+□ What services are currently running?
+□ Will this interfere with existing infrastructure?
+□ Am I testing in complete isolation?
+□ Have I verified all assumptions?
+```
+
+### 7. TESTING PROTOCOL FOR SYSTEMATIC VERIFICATION
+1. ALWAYS use port 8081+ for testing (NEVER 8080)
 2. ALWAYS check `docker ps` before doing anything
 3. ALWAYS check `lsof -i :8080` before testing
-4. NEVER assume - ALWAYS verify what's running first
-5. When in doubt, ASK THE USER before proceeding
+4. ALWAYS verify assumptions via ustad_search first
+5. NEVER assume - ALWAYS verify what's running first
+6. When in doubt, ASK THE USER before proceeding
 
 ## 🚨 CRITICAL: Atomic Git Commits MANDATORY
 
