@@ -11,6 +11,8 @@ import re
 from datetime import datetime
 from typing import Any, TypedDict
 
+from .search_service import tavily_search
+
 # Try to import LangGraph - graceful fallback if not available
 try:
     from langgraph.graph import END, StateGraph
@@ -166,22 +168,6 @@ async def analyze_intent(state: WorkflowState) -> WorkflowState:
     return state
 
 
-async def search_tavily(query: str) -> dict[str, Any]:
-    """Mock Tavily search function for testing.
-
-    In production, this would call the actual Tavily API.
-
-    Args:
-        query: Search query
-
-    Returns:
-        Search results
-    """
-    # Mock implementation - in production would call actual Tavily API
-    logger.info("Searching Tavily for: %s", query)
-    return {"answer": f"Mock result for: {query}"}
-
-
 async def verify_facts(state: WorkflowState) -> WorkflowState:
     """Verify facts using Tavily search.
 
@@ -204,7 +190,7 @@ async def verify_facts(state: WorkflowState) -> WorkflowState:
 
     for fact in state["facts_to_verify"]:
         try:
-            result = await search_tavily(fact)
+            result = await tavily_search(fact)
             verification_results[fact] = result
 
             # Add to audit log
@@ -212,7 +198,7 @@ async def verify_facts(state: WorkflowState) -> WorkflowState:
                 {
                     "timestamp": datetime.now().isoformat(),
                     "fact": fact,
-                    "result": result["answer"] if "answer" in result else str(result),
+                    "result": result.get("answer", str(result)),
                 }
             )
 
@@ -246,7 +232,7 @@ async def verify_facts_with_retry(state: WorkflowState, max_retries: int = 3) ->
 
         while retry_count < max_retries:
             try:
-                result = await search_tavily(fact)
+                result = await tavily_search(fact)
                 verification_results[fact] = result
 
                 # Add to audit log
@@ -254,7 +240,7 @@ async def verify_facts_with_retry(state: WorkflowState, max_retries: int = 3) ->
                     {
                         "timestamp": datetime.now().isoformat(),
                         "fact": fact,
-                        "result": result["answer"] if "answer" in result else str(result),
+                        "result": result.get("answer", str(result)),
                         "retry_count": retry_count,
                     }
                 )
