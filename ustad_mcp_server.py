@@ -139,6 +139,8 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]
         print(f"DEBUG: API key present: {bool(api_key)}")
         print(f"DEBUG: API key length: {len(api_key) if api_key else 0}")
         print(f"DEBUG: API key starts with: {api_key[:10] if api_key else 'None'}...")
+        print(f"DEBUG: All env vars: {list(os.environ.keys())}")
+        print(f"DEBUG: DOCKER_CONTAINER env: {os.getenv('DOCKER_CONTAINER')}")
 
         if not api_key:
             error_result = {

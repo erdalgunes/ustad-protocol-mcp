@@ -409,6 +409,62 @@ SKIP=bandit git commit  # ❌ FORBIDDEN
 - Skipping checks introduces technical debt
 - Other developers depend on clean commits
 
+## 🧠 CRITICAL: Stop Making Assumptions - Debug Systematically
+
+### MANDATORY: Evidence-Based Problem Solving
+```bash
+# WRONG: "The API key is expired" (assumption)
+# RIGHT: "The API works locally but fails on Render - debug environment"
+
+# WRONG: "It must be a rate limit" (speculation)
+# RIGHT: "Error says 'invalid API key' - check Render env var loading"
+
+# WRONG: "Let me get a new API key" (avoiding the real problem)
+# RIGHT: "Let me verify how Render loads environment variables"
+```
+
+### The Debugging Protocol
+1. **State the facts** - What exactly works and what fails?
+2. **Eliminate assumptions** - Test each hypothesis systematically
+3. **Check the environment** - Don't assume config is working
+4. **One variable at a time** - Change only one thing and test
+5. **Verify each step** - Don't move on until current step is proven
+
+### Anti-Patterns to Avoid
+- ❌ Jumping to conclusions without evidence
+- ❌ Changing multiple things at once
+- ❌ Assuming configuration works without verification
+- ❌ Giving up and trying workarounds instead of fixing root cause
+- ❌ Making excuses instead of doing systematic debugging
+- ❌ **FORGETTING TO USE AVAILABLE MCP TOOLS** - Check what tools are available!
+
+## 🛠️ CRITICAL: Use Available MCP Tools First
+
+### MANDATORY: Check Available Tools
+Before manually debugging deployment issues, ALWAYS check available MCP tools:
+
+```bash
+# Available render tools - USE THEM!
+mcp__render__list_services          # List Render services
+mcp__render__get_deploy             # Get deployment info
+mcp__render__update_environment_variables  # Update env vars!
+mcp__render__list_deploys          # List deployments
+
+# Available printer tools
+mcp__printer__*
+
+# Available ustad tools
+mcp__ustad-protocol-mcp__ustad_search
+mcp__ustad-protocol-mcp__ustad_think
+```
+
+### Why This Matters
+- MCP tools provide direct API access to services
+- Faster than manual dashboard navigation
+- Programmatic control over deployments
+- Can set environment variables directly
+- Can check deployment status and logs
+
 ## 🔄 Recovery Procedures
 
 ### When Things Go Wrong
