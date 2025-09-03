@@ -14,17 +14,14 @@ from fastmcp import FastMCP
 from src.sequential_thinking import SequentialThinkingServer
 
 # Initialize FastMCP server
-mcp = FastMCP(
-    name="ustad-protocol-mcp",
-    description="Minimal MCP server with sequential thinking and search capabilities",
-)
+mcp = FastMCP(name="ustad-protocol-mcp")
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
 
 
-@mcp.tool()  # type: ignore[misc]
-async def ustad_think(
+# Standalone function for processing thoughts (testable)
+async def process_thought(
     thought: str,
     thought_number: int,
     total_thoughts: int,
@@ -36,7 +33,7 @@ async def ustad_think(
     needs_more_thoughts: bool = False,
 ) -> dict[str, Any]:
     """
-    Sequential thinking tool for structured problem-solving.
+    Process a sequential thinking step.
 
     Args:
         thought: Current thinking step
@@ -81,12 +78,12 @@ async def ustad_think(
     return result
 
 
-@mcp.tool()  # type: ignore[misc]
-async def ustad_search(
+# Standalone function for Tavily search (testable)
+async def search_tavily(
     query: str, max_results: int = 5, search_type: str = "general"
 ) -> dict[str, Any]:
     """
-    Search tool using Tavily API for fact-checking and information retrieval.
+    Search using Tavily API for fact-checking and information retrieval.
 
     Args:
         query: Search query string
@@ -157,10 +154,10 @@ async def ustad_search(
         return {"error": "Search error", "message": str(e)}
 
 
-@mcp.resource("health")  # type: ignore[misc]
-async def health_check() -> dict[str, Any]:
+# Standalone function for health check (testable)
+async def get_health_status() -> dict[str, Any]:
     """
-    Health check endpoint for container orchestration.
+    Get server health status.
 
     Returns:
         Dictionary with server health status
@@ -173,6 +170,59 @@ async def health_check() -> dict[str, Any]:
         "thinking_history_length": len(thinking_server.get_thought_history()),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
     }
+
+
+# MCP Tool Decorators (thin wrappers)
+@mcp.tool()
+async def ustad_think(
+    thought: str,
+    thought_number: int,
+    total_thoughts: int,
+    next_thought_needed: bool,
+    is_revision: bool = False,
+    revises_thought: int | None = None,
+    branch_from_thought: int | None = None,
+    branch_id: str | None = None,
+    needs_more_thoughts: bool = False,
+) -> dict[str, Any]:
+    """
+    Sequential thinking tool for structured problem-solving.
+
+    This is the MCP wrapper for the process_thought function.
+    """
+    return await process_thought(
+        thought=thought,
+        thought_number=thought_number,
+        total_thoughts=total_thoughts,
+        next_thought_needed=next_thought_needed,
+        is_revision=is_revision,
+        revises_thought=revises_thought,
+        branch_from_thought=branch_from_thought,
+        branch_id=branch_id,
+        needs_more_thoughts=needs_more_thoughts,
+    )
+
+
+@mcp.tool()
+async def ustad_search(
+    query: str, max_results: int = 5, search_type: str = "general"
+) -> dict[str, Any]:
+    """
+    Search tool using Tavily API.
+
+    This is the MCP wrapper for the search_tavily function.
+    """
+    return await search_tavily(query=query, max_results=max_results, search_type=search_type)
+
+
+@mcp.resource("health://server/status")
+async def health_check() -> dict[str, Any]:
+    """
+    Health check endpoint for container orchestration.
+
+    This is the MCP wrapper for the get_health_status function.
+    """
+    return await get_health_status()
 
 
 if __name__ == "__main__":
@@ -197,15 +247,15 @@ if __name__ == "__main__":
                 in_stream, out_stream, mcp._mcp_server.create_initialization_options()
             )
 
-    async def health_check(request: Any) -> Any:  # Returns JSONResponse
+    async def health_endpoint(request: Any) -> Any:  # Returns JSONResponse
         """Health check endpoint."""
-        return JSONResponse({"status": "healthy", "server": "ustad-protocol", "version": "1.0.0"})
+        return JSONResponse(await get_health_status())
 
     # Create Starlette app for SSE
     sse_app = Starlette(
         routes=[
             Route("/sse", handle_sse, methods=["GET"]),
-            Route("/health", health_check, methods=["GET"]),
+            Route("/health", health_endpoint, methods=["GET"]),
             Mount("/messages/", app=transport.handle_post_message),
         ]
     )

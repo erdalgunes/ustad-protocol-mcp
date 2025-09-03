@@ -196,6 +196,8 @@ pretty = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
+# Allow untyped decorators for framework decorators like @mcp.tool()
+disallow_untyped_decorators = false
 
 [[tool.mypy.overrides]]
 module = "tests.*"
