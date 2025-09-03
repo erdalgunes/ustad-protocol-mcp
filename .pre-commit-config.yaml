@@ -54,6 +54,8 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: debug-statements  # Catch print() and breakpoint() calls
+      - id: check-added-large-files  # Prevent committing large files
+        args: ['--maxkb=5000']  # 5MB max file size
 
   # Python specific checks
   - repo: https://github.com/pre-commit/pygrep-hooks
