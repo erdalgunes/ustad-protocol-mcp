@@ -3,6 +3,14 @@
 This module provides concrete implementations of the EventEmitter protocol
 to integrate with MCP's SSE transport layer, enabling guidance events to be
 sent through the actual SSE connection.
+
+Based on SSE best practices research (via Tavily):
+- Use consistent event formatting for reliable processing
+- Implement retry mechanism with configurable intervals
+- Support event IDs for resuming connections
+- Handle authentication before accessing SSE streams
+- Use text/event-stream MIME type
+- Implement graceful degradation for connection failures
 """
 
 import asyncio
