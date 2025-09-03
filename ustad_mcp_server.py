@@ -14,10 +14,7 @@ from fastmcp import FastMCP
 from src.sequential_thinking import SequentialThinkingServer
 
 # Initialize FastMCP server
-mcp = FastMCP(
-    name="ustad-protocol-mcp",
-    description="Minimal MCP server with sequential thinking and search capabilities",
-)
+mcp = FastMCP(name="ustad-protocol-mcp")
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
