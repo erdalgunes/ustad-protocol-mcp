@@ -1,56 +1,125 @@
 #!/usr/bin/env python3
 """
-Ustad Protocol MCP Server - Minimal, Clean Implementation
-Uses FastMCP with SSE protocol for containerized deployment.
+Ustad Protocol MCP Server - Official MCP SDK Implementation
+Uses official MCP Python SDK with SSE protocol for containerized deployment.
 Only two tools: ustad-think (sequential thinking) and ustad-search (Tavily).
 """
 
 import os
 from typing import Any
 
-from fastmcp import FastMCP
+from mcp.server import Server
+from mcp.server.sse import SseServerTransport
+from mcp.types import Tool
+from starlette.requests import Request
 
 from src.constants import CAPABILITIES_DATA, HEALTH_DATA
-
-# Import our sequential thinking implementation
 from src.sequential_thinking import SequentialThinkingServer
 
-# Initialize FastMCP server
-mcp = FastMCP(name="ustad-protocol-mcp")
+# Initialize MCP server
+server = Server("ustad-protocol-mcp")
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
 
 
-@mcp.tool()  # type: ignore[misc]
-async def ustad_think(
-    thought: str,
-    thought_number: int,
-    total_thoughts: int,
-    next_thought_needed: bool,
-    is_revision: bool = False,
-    revises_thought: int | None = None,
-    branch_from_thought: int | None = None,
-    branch_id: str | None = None,
-    needs_more_thoughts: bool = False,
-) -> dict[str, Any]:
-    """
-    Sequential thinking tool for structured problem-solving.
+@server.list_tools()
+async def handle_list_tools() -> list[Tool]:
+    """List available tools."""
+    return [
+        Tool(
+            name="ustad_think",
+            description="Sequential thinking tool for structured problem-solving",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thought": {"type": "string", "description": "Current thinking step"},
+                    "thought_number": {
+                        "type": "integer",
+                        "description": "Current thought number (starting from 1)",
+                    },
+                    "total_thoughts": {
+                        "type": "integer",
+                        "description": "Estimated total thoughts needed",
+                    },
+                    "next_thought_needed": {
+                        "type": "boolean",
+                        "description": "Whether another thought is needed",
+                    },
+                    "is_revision": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Whether this revises a previous thought",
+                    },
+                    "revises_thought": {
+                        "type": "integer",
+                        "description": "Which thought number is being revised",
+                    },
+                    "branch_from_thought": {
+                        "type": "integer",
+                        "description": "Branching point thought number",
+                    },
+                    "branch_id": {
+                        "type": "string",
+                        "description": "Identifier for the current branch",
+                    },
+                    "needs_more_thoughts": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "If more thoughts are needed than initially estimated",
+                    },
+                },
+                "required": ["thought", "thought_number", "total_thoughts", "next_thought_needed"],
+            },
+        ),
+        Tool(
+            name="ustad_search",
+            description="Search tool using Tavily API for fact-checking and information retrieval",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query string"},
+                    "max_results": {
+                        "type": "integer",
+                        "default": 5,
+                        "description": "Maximum number of results to return",
+                    },
+                    "search_type": {
+                        "type": "string",
+                        "default": "general",
+                        "description": "Type of search - 'general' or 'news'",
+                    },
+                },
+                "required": ["query"],
+            },
+        ),
+    ]
 
-    Args:
-        thought: Current thinking step
-        thought_number: Current thought number (starting from 1)
-        total_thoughts: Estimated total thoughts needed
-        next_thought_needed: Whether another thought is needed
-        is_revision: Whether this revises a previous thought
-        revises_thought: Which thought number is being revised
-        branch_from_thought: Branching point thought number
-        branch_id: Identifier for the current branch
-        needs_more_thoughts: If more thoughts are needed than initially estimated
 
-    Returns:
-        Dictionary with thought processing results and state
-    """
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    """Handle tool calls."""
+    if name == "ustad_think":
+        return await handle_ustad_think(arguments)
+    if name == "ustad_search":
+        return await handle_ustad_search(arguments)
+    raise ValueError(f"Unknown tool: {name}")
+
+
+async def handle_ustad_think(arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    """Handle ustad_think tool call."""
+    # Extract arguments
+    thought = arguments["thought"]
+    thought_number = arguments["thought_number"]
+    total_thoughts = arguments["total_thoughts"]
+    next_thought_needed = arguments["next_thought_needed"]
+    is_revision = arguments.get("is_revision", False)
+    revises_thought = arguments.get("revises_thought")
+    branch_from_thought = arguments.get("branch_from_thought")
+    branch_id = arguments.get("branch_id")
+    needs_more_thoughts = arguments.get("needs_more_thoughts", False)
+
+    # Build thought data
     thought_data = {
         "thought": thought,
         "thoughtNumber": thought_number,
@@ -77,33 +146,25 @@ async def ustad_think(
     result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
     result["branches"] = list(thinking_server.get_branches().keys())
 
-    return result
+    return [{"type": "text", "text": str(result)}]
 
 
-@mcp.tool()  # type: ignore[misc]
-async def ustad_search(
-    query: str, max_results: int = 5, search_type: str = "general"
-) -> dict[str, Any]:
-    """
-    Search tool using Tavily API for fact-checking and information retrieval.
-
-    Args:
-        query: Search query string
-        max_results: Maximum number of results to return (default 5)
-        search_type: Type of search - "general" or "news" (default "general")
-
-    Returns:
-        Dictionary with search results
-    """
+async def handle_ustad_search(arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    """Handle ustad_search tool call."""
     import httpx
+
+    query = arguments["query"]
+    max_results = arguments.get("max_results", 5)
+    search_type = arguments.get("search_type", "general")
 
     # Get Tavily API key from environment
     api_key = os.getenv("TAVILY_API_KEY")
     if not api_key:
-        return {
+        error_result = {
             "error": "Tavily API key not configured",
             "message": "Please set TAVILY_API_KEY environment variable",
         }
+        return [{"type": "text", "text": str(error_result)}]
 
     # Prepare the search request
     url = "https://api.tavily.com/search"
@@ -130,7 +191,7 @@ async def ustad_search(
             data = response.json()
 
             # Format the response
-            return {
+            result = {
                 "query": query,
                 "answer": data.get("answer", ""),
                 "results": [
@@ -146,23 +207,22 @@ async def ustad_search(
                 "search_type": search_type,
             }
 
+            return [{"type": "text", "text": str(result)}]
+
     except httpx.HTTPStatusError as e:
-        return {
+        error_result = {
             "error": "Search request failed",
             "status_code": e.response.status_code,
             "message": str(e),
         }
+        return [{"type": "text", "text": str(error_result)}]
     except Exception as e:
-        return {"error": "Search error", "message": str(e)}
+        error_result = {"error": "Search error", "message": str(e)}
+        return [{"type": "text", "text": str(error_result)}]
 
 
 def get_health_data() -> dict[str, Any]:
-    """
-    Get current health status data.
-
-    Returns:
-        Dictionary with server health status
-    """
+    """Get current health status data."""
     health_data = HEALTH_DATA.copy()
     health_data.update(
         {
@@ -174,81 +234,50 @@ def get_health_data() -> dict[str, Any]:
 
 
 def get_capabilities_data() -> dict[str, Any]:
-    """
-    Get server capabilities data.
-
-    Returns:
-        Dictionary with server version, features, and available tools
-    """
+    """Get server capabilities data."""
     return CAPABILITIES_DATA.copy()
-
-
-@mcp.resource("health://status")  # type: ignore[misc]
-async def health_check() -> dict[str, Any]:
-    """
-    Health check endpoint for container orchestration.
-
-    Returns:
-        Dictionary with server health status
-    """
-    return get_health_data()
-
-
-@mcp.resource("capabilities://info")  # type: ignore[misc]
-async def capabilities() -> dict[str, Any]:
-    """
-    Capabilities endpoint for version and feature detection.
-
-    Returns:
-        Dictionary with server version, features, and available tools
-    """
-    return get_capabilities_data()
 
 
 if __name__ == "__main__":
     # For containerized deployment with SSE
     import uvicorn
-    from fastapi import FastAPI
-    from mcp.server.sse import SseServerTransport
     from starlette.applications import Starlette
+    from starlette.middleware.cors import CORSMiddleware
     from starlette.responses import JSONResponse
     from starlette.routing import Mount, Route
 
-    # Create SSE transport
-    transport = SseServerTransport("/messages/")
-
-    # Wrapper to run MCP server with SSE transport
-    async def handle_sse(scope: Any, receive: Any, send: Any) -> None:
-        """Handle SSE connections and run MCP server."""
-        async with transport.connect_sse(scope, receive, send) as (in_stream, out_stream):
-            await mcp._mcp_server.run(
-                in_stream, out_stream, mcp._mcp_server.create_initialization_options()
-            )
-
-    async def health_check(request: Any) -> Any:  # Returns JSONResponse
+    async def health_check(request: Request) -> JSONResponse:
         """Health check endpoint."""
         return JSONResponse(get_health_data())
 
-    async def capabilities_endpoint(request: Any) -> Any:  # Returns JSONResponse
+    async def capabilities_endpoint(request: Request) -> JSONResponse:
         """Capabilities endpoint for version and feature detection."""
         return JSONResponse(get_capabilities_data())
 
-    # Create Starlette app for SSE
-    # Mount handle_sse as an ASGI app directly, not as a Route
-    from starlette.middleware.cors import CORSMiddleware
-    from starlette.routing import Mount as ASGIMount
+    # Create SSE transport
+    sse_transport = SseServerTransport("/messages")
 
-    sse_app = Starlette(
+    # Create handler for SSE connection
+    async def handle_sse(request: Request) -> None:
+        """Handle SSE connections and run MCP server."""
+        async with sse_transport.connect_sse(request.scope, request.receive, request._send) as (
+            in_stream,
+            out_stream,
+        ):
+            await server.run(in_stream, out_stream, server.create_initialization_options())
+
+    # Create Starlette app for SSE
+    app = Starlette(
         routes=[
-            ASGIMount("/sse", app=handle_sse),  # Mount as ASGI app
             Route("/health", health_check, methods=["GET"]),
             Route("/capabilities", capabilities_endpoint, methods=["GET"]),
-            Mount("/messages/", app=transport.handle_post_message),
+            Route("/sse", handle_sse, methods=["GET"]),
+            Mount("/messages/", app=sse_transport.handle_post_message),
         ]
     )
 
-    # Add CORS middleware using add_middleware method
-    sse_app.add_middleware(
+    # Add CORS middleware
+    app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],  # Allow all origins for development
         allow_credentials=True,
@@ -257,21 +286,15 @@ if __name__ == "__main__":
         expose_headers=["*"],
     )
 
-    # Create FastAPI wrapper
-    app = FastAPI(title="Ustad Protocol MCP Server")
-    app.mount("/", sse_app)
-
     # Run with uvicorn (container-friendly)
     port = int(os.getenv("PORT", "8000"))
 
     # Detect if running in container and set appropriate host
-    # In containers, we must bind to 0.0.0.0 to be accessible
-    # In development, we bind to localhost for security
     is_container = os.path.exists("/.dockerenv") or os.getenv("DOCKER_CONTAINER") == "true"
-    default_host = "0.0.0.0" if is_container else "127.0.0.1"  # nosec B104 - Conditional binding only in containers
+    default_host = "0.0.0.0" if is_container else "127.0.0.1"  # nosec B104
     host = os.getenv("HOST", default_host)
 
-    print("🚀 Ustad Protocol MCP Server (SSE)")
+    print("🚀 Ustad Protocol MCP Server (Official SDK + SSE)")
     print(f"📍 Running on {host}:{port}")
     print("🔧 Tools: ustad_think, ustad_search")
     print(f"🔑 Tavily API: {'✓ Configured' if os.getenv('TAVILY_API_KEY') else '✗ Not configured'}")
