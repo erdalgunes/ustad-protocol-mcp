@@ -34,6 +34,7 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --chown=ustaduser:ustaduser ustad_mcp_server.py .
 COPY --chown=ustaduser:ustaduser src/sequential_thinking.py ./src/
 COPY --chown=ustaduser:ustaduser src/constants.py ./src/
+COPY --chown=ustaduser:ustaduser scripts/health_check.py ./scripts/
 
 # Set environment variables
 ENV PATH=/home/ustaduser/.local/bin:$PATH \
@@ -46,8 +47,8 @@ ENV PATH=/home/ustaduser/.local/bin:$PATH \
 USER ustaduser
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python scripts/health_check.py || exit 1
 
 # Expose port
 EXPOSE 8000
