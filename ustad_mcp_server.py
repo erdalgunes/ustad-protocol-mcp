@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Ustad Protocol MCP Server - FastMCP 2.x Implementation
-Uses FastMCP with SSE transport for containerized deployment.
+Uses FastMCP with HTTP transport for containerized deployment.
 Only two tools: ustad-think (sequential thinking) and ustad-search (Tavily).
 """
 
@@ -167,10 +167,10 @@ if __name__ == "__main__":
     default_host = "0.0.0.0" if is_container else "127.0.0.1"  # nosec B104
     host = os.getenv("HOST", default_host)
 
-    print("🚀 Ustad Protocol MCP Server (FastMCP 2.x + SSE)")
+    print("🚀 Ustad Protocol MCP Server (FastMCP 2.x + HTTP)")
     print(f"📍 Running on {host}:{port}")
     print("🔧 Tools: ustad_think, ustad_search")
     print(f"🔑 Tavily API: {'✓ Configured' if os.getenv('TAVILY_API_KEY') else '✗ Not configured'}")
 
-    # Run with SSE transport
-    mcp.run(transport="sse", host=host, port=port)
+    # Run with HTTP transport (SSE doesn't support custom routes)
+    mcp.run(transport="http", host=host, port=port)
