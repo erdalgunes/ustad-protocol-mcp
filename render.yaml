@@ -1,0 +1,27 @@
+services:
+  # Web Service for the MCP SSE Server
+  - type: web
+    name: ustad-mcp-server
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free  # Use free tier
+
+    # Environment configuration
+    envVars:
+      - key: DOCKER_CONTAINER
+        value: true
+      - key: TAVILY_API_KEY
+        sync: false  # Will be set manually in Render dashboard
+
+    # Health check configuration
+    healthCheckPath: /health
+
+    # Resource configuration for free tier
+    numInstances: 1
+
+    # Build configuration
+    buildCommand: ""  # Docker handles the build
+
+    # Region (optional, Render will auto-select)
+    region: oregon  # us-west
