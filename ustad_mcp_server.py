@@ -277,7 +277,9 @@ if __name__ == "__main__":
             Route("/health", health_check, methods=["GET"]),
             Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             Route("/sse", handle_sse, methods=["GET"]),
-            Mount("/messages/", sse_transport.handle_post_message),
+            Mount(
+                "/messages", sse_transport.handle_post_message
+            ),  # No trailing slash to prevent redirects
         ]
     )
 
