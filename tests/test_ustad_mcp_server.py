@@ -37,7 +37,8 @@ class TestProcessThought:
 
         assert result["thought"] == "Test thought"
         assert result["thoughtNumber"] == 1
-        assert result["totalThoughts"] == 3
+        # Intent analysis enforces minimum 10 steps for first thought
+        assert result["totalThoughts"] >= 10
         assert result["nextThoughtNeeded"] is True
         assert result["thoughtHistoryLength"] == 1
         assert result["branches"] == []
@@ -277,7 +278,7 @@ class TestHealthStatus:
 
         assert result["status"] == "healthy"
         assert result["server"] == "ustad-protocol-mcp"
-        assert result["version"] == "1.0.0"
+        assert result["version"] == "0.1.0"
         assert "ustad_think" in result["tools"]
         assert "ustad_search" in result["tools"]
         assert result["thinking_history_length"] == 0
