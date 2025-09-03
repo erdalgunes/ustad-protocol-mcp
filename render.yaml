@@ -12,7 +12,7 @@ services:
       - key: DOCKER_CONTAINER
         value: true
       - key: TAVILY_API_KEY
-        sync: false  # Will be set manually in Render dashboard
+        value: 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
 
     # Health check configuration
     healthCheckPath: /health
