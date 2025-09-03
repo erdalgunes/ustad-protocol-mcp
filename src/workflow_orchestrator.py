@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Any, TypedDict
 
 from .search_service import tavily_search
+from .thinking_service import generate_thinking_steps
 
 # Try to import LangGraph - graceful fallback if not available
 try:
@@ -86,21 +87,8 @@ async def analyze_intent(state: WorkflowState) -> WorkflowState:
     Returns:
         Updated state with analysis results
     """
-    # Generate thinking steps for intent analysis
-    thinking_steps = [
-        "Analyzing user intent",
-        "Breaking down the request into components",
-        "Identifying key entities and concepts",
-        "Checking for factual claims that need verification",
-        "Evaluating complexity of the request",
-        "Determining information requirements",
-        "Assessing need for external verification",
-        "Identifying potential ambiguities",
-        "Considering context and implications",
-        "Planning execution approach",
-        "Finalizing intent analysis",
-    ]
-
+    # Generate thinking steps using the thinking service
+    thinking_steps = await generate_thinking_steps(state["intent"], min_steps=11)
     state["thinking_steps"] = thinking_steps
 
     # Check if intent contains factual claims
