@@ -1,5 +1,23 @@
 # CLAUDE.md - Project-Specific AI Development Scaffolding
 
+## 🛡️ CRITICAL: NEVER INTERFERE WITH LOCAL DEVELOPMENT ENVIRONMENT
+
+### ABSOLUTE PROHIBITIONS
+```bash
+# NEVER test on port 8080 - this is the active development port
+# NEVER overwrite working Docker containers
+# NEVER replace stable local versions with experimental code
+# NEVER run commands that could disrupt running services
+
+# ALWAYS use different ports for testing (8081, 8082, etc.)
+# ALWAYS preserve existing working containers
+# ALWAYS test in isolation from production environment
+```
+
+**VIOLATION OF THESE RULES WILL RESULT IN SEVERE CONSEQUENCES**
+
+The local development environment on port 8080 is SACRED and must never be touched during development or testing.
+
 ## 🚨 CRITICAL: Atomic Git Commits MANDATORY
 
 ### COMMIT FREQUENCY RULES
