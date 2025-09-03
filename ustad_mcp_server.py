@@ -244,19 +244,17 @@ if __name__ == "__main__":
             Route("/health", health_check, methods=["GET"]),
             Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             Mount("/messages/", app=transport.handle_post_message),
-        ],
-        middleware=[
-            (
-                CORSMiddleware,
-                {
-                    "allow_origins": ["*"],  # Allow all origins for development
-                    "allow_credentials": True,
-                    "allow_methods": ["*"],
-                    "allow_headers": ["*"],
-                    "expose_headers": ["*"],
-                },
-            )
-        ],
+        ]
+    )
+
+    # Add CORS middleware using add_middleware method
+    sse_app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Allow all origins for development
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
     )
 
     # Create FastAPI wrapper
