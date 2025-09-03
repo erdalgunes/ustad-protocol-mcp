@@ -13,7 +13,6 @@ mcp = "^1.0.0"
 fastapi = "^0.104.0"
 httpx = "^0.25.0"
 uvicorn = {extras = ["standard"], version = "^0.24.0"}
-starlette = "^0.32.0"
 pydantic = "^2.5.0"
 langgraph = {version = "^0.0.29", optional = true}
 
