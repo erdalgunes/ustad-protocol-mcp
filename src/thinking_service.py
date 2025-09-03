@@ -7,6 +7,7 @@ the sequential thinking server, following SOLID principles.
 from typing import Any
 
 from .sequential_thinking import SequentialThinkingServer
+from .sse_events import emit_intent_analyzed
 
 # Singleton instance of the thinking server
 _thinking_server = SequentialThinkingServer()
@@ -22,6 +23,27 @@ async def generate_thinking_steps(intent: str, min_steps: int = 10) -> list[str]
     Returns:
         List of thinking steps
     """
+    # Emit intent analyzed event for transparency
+    needs_fact_check = any(
+        word in intent.lower()
+        for word in [
+            "what",
+            "how",
+            "when",
+            "where",
+            "why",
+            "fact",
+            "true",
+            "false",
+            "statistics",
+            "data",
+            "research",
+            "study",
+            "evidence",
+        ]
+    )
+    await emit_intent_analyzed(intent, needs_fact_check, min_steps)
+
     thinking_steps: list[str] = []
 
     # Generate thinking steps using the sequential thinking server

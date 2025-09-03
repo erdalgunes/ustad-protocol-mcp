@@ -13,6 +13,7 @@ from fastmcp import FastMCP
 # Import our implementations
 from src.search_service import tavily_search
 from src.sequential_thinking import SequentialThinkingServer
+from src.sse_events import emit_fact_check_triggered, emit_thinking_step
 
 # Initialize FastMCP server
 mcp = FastMCP(
@@ -72,6 +73,9 @@ async def ustad_think(
     if needs_more_thoughts:
         thought_data["needsMoreThoughts"] = needs_more_thoughts
 
+    # Emit thinking step event for transparency
+    await emit_thinking_step(thought_number, total_thoughts, thought)
+
     # Process the thought
     result = thinking_server.process_thought(thought_data)
 
@@ -97,6 +101,9 @@ async def ustad_search(
     Returns:
         Dictionary with search results
     """
+    # Emit fact-check event for transparency
+    await emit_fact_check_triggered(query, "Fact-checking query using Tavily search")
+
     # Delegate to the shared search service
     return await tavily_search(query, max_results, search_type)
 
