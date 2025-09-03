@@ -1773,13 +1773,14 @@ wheels = [
 
 [[package]]
 name = "ustad-protocol-mcp"
-version = "1.0.0"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "fastmcp" },
     { name = "httpx" },
     { name = "mcp" },
+    { name = "openai" },
     { name = "pydantic" },
     { name = "starlette" },
     { name = "uvicorn", extra = ["standard"] },
@@ -1810,6 +1811,7 @@ requires-dist = [
     { name = "fastmcp", specifier = ">=2.0.0,<3" },
     { name = "httpx", specifier = ">=0.25.0" },
     { name = "mcp", specifier = ">=1.0.0,<2" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "pydantic", specifier = ">=2.5.0,<3" },
     { name = "starlette", specifier = ">=0.40.0,<0.48" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30.0" },

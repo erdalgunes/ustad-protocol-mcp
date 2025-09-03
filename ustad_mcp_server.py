@@ -13,6 +13,7 @@ from fastmcp import FastMCP
 
 from src.auth import create_auth_verifier
 from src.exceptions import InvalidThoughtError, ThoughtValidationError
+from src.intent_analyzer import analyze_intent
 from src.rate_limiting import create_rate_limiter
 
 # Import our sequential thinking implementation and auth
@@ -72,7 +73,7 @@ async def process_thought(
     needs_more_thoughts: bool = False,
 ) -> dict[str, Any]:
     """
-    Process a sequential thinking step.
+    Process a sequential thinking step with optional intent analysis.
 
     Args:
         thought: Current thinking step
@@ -88,6 +89,46 @@ async def process_thought(
     Returns:
         Dictionary with thought processing results and state
     """
+    # Step 1: Analyze intent if OpenAI is configured (first thought only)
+    intent_result = None
+    if thought_number == 1:
+        try:
+            # Get context from previous thoughts if available
+            context = None
+            history = thinking_server.get_thought_history()
+            if history:
+                # Convert thought dicts to strings for context
+                context_thoughts = [
+                    str(t.get("thought", "")) if isinstance(t, dict) else str(t)
+                    for t in history[-3:]
+                ]
+                context = "Previous thoughts: " + "; ".join(context_thoughts)
+
+            # Analyze the intent
+            intent_result = await analyze_intent(thought, context)
+
+            # Log intent analysis for monitoring
+            logger.info(
+                "Intent analysis: needs_fact_check=%s, complexity=%s, steps_needed=%s",
+                intent_result.get("needs_fact_check"),
+                intent_result.get("complexity"),
+                intent_result.get("reasoning_steps_needed"),
+            )
+
+            # Enforce minimum 10 thinking steps as per requirements
+            min_steps = max(10, intent_result.get("reasoning_steps_needed", 10))
+            if total_thoughts < min_steps:
+                logger.info(
+                    "Adjusting total_thoughts from %d to %d based on intent analysis",
+                    total_thoughts,
+                    min_steps,
+                )
+                total_thoughts = min_steps
+
+        except Exception as e:
+            # Log but don't fail on intent analysis errors
+            logger.warning("Intent analysis failed (continuing without it): %s", e)
+
     thought_data = {
         "thought": thought,
         "thoughtNumber": thought_number,
@@ -114,6 +155,18 @@ async def process_thought(
         # Add metadata about the thinking state
         result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
         result["branches"] = list(thinking_server.get_branches().keys())
+
+        # Add intent analysis result if available
+        if intent_result and intent_result.get("analysis_available"):
+            result["intentAnalysis"] = {
+                "needs_fact_check": intent_result.get("needs_fact_check", False),
+                "complexity": intent_result.get("complexity", "medium"),
+                "min_steps": max(10, intent_result.get("reasoning_steps_needed", 10)),
+                "confidence": intent_result.get("confidence", 0.0),
+            }
+
+            # Emit SSE event for intent analysis (this will be part of the response)
+            result["sse_event"] = {"type": "intent_analyzed", "data": result["intentAnalysis"]}
 
         return result
     except (InvalidThoughtError, ThoughtValidationError) as e:
