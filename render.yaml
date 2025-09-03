@@ -14,8 +14,8 @@ services:
       - key: TAVILY_API_KEY
         value: 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
 
-    # Health check configuration
-    healthCheckPath: /health
+    # Health check disabled - using service monitoring instead
+    # healthCheckPath: /health
 
     # Resource configuration for free tier
     numInstances: 1

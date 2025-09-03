@@ -167,10 +167,10 @@ if __name__ == "__main__":
     default_host = "0.0.0.0" if is_container else "127.0.0.1"  # nosec B104
     host = os.getenv("HOST", default_host)
 
-    print("🚀 Ustad Protocol MCP Server (FastMCP 2.x + HTTP)")
+    print("🚀 Ustad Protocol MCP Server (FastMCP 2.x + SSE)")
     print(f"📍 Running on {host}:{port}")
     print("🔧 Tools: ustad_think, ustad_search")
     print(f"🔑 Tavily API: {'✓ Configured' if os.getenv('TAVILY_API_KEY') else '✗ Not configured'}")
 
-    # Run with HTTP transport for Render compatibility
-    mcp.run(transport="http", host=host, port=port)
+    # Run with SSE transport (health check disabled in render.yaml)
+    mcp.run(transport="sse", host=host, port=port)
