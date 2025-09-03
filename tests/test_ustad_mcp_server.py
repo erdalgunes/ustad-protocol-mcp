@@ -124,14 +124,18 @@ class TestProcessThought:
         assert result["nextThoughtNeeded"] is True
 
     async def test_process_thought_validation_error(self) -> None:
-        """Test validation errors are properly raised."""
-        with pytest.raises(ValueError, match="Invalid thought number"):
-            await process_thought(
-                thought="Test",
-                thought_number=0,  # Invalid
-                total_thoughts=3,
-                next_thought_needed=True,
-            )
+        """Test validation errors return structured error responses."""
+        result = await process_thought(
+            thought="Test",
+            thought_number=0,  # Invalid
+            total_thoughts=3,
+            next_thought_needed=True,
+        )
+
+        assert "error" in result
+        assert result["error"] == "Invalid thought data"
+        assert "message" in result
+        assert "details" in result
 
 
 @pytest.mark.asyncio
@@ -220,8 +224,8 @@ class TestSearchTavily:
             result = await search_tavily("test query")
 
         assert "error" in result
-        assert result["error"] == "Search request failed"
-        assert result["status_code"] == 429
+        assert result["error"] == "Rate limited"
+        assert "message" in result
 
     @patch("httpx.AsyncClient")
     async def test_search_generic_error(self, mock_client_class: Mock) -> None:
@@ -234,8 +238,8 @@ class TestSearchTavily:
             result = await search_tavily("test query")
 
         assert "error" in result
-        assert result["error"] == "Search error"
-        assert "Network error" in result["message"]
+        assert result["error"] == "Search unavailable"
+        assert "message" in result
 
     @patch("httpx.AsyncClient")
     async def test_search_max_results(self, mock_client_class: Mock) -> None:

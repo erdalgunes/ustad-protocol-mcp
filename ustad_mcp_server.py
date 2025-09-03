@@ -5,6 +5,7 @@ Uses FastMCP with SSE protocol for containerized deployment.
 Only two tools: ustad-think (sequential thinking) and ustad-search (Tavily).
 """
 
+import logging
 import os
 from typing import Any
 
@@ -12,6 +13,12 @@ from fastmcp import FastMCP
 
 # Import our sequential thinking implementation
 from src.sequential_thinking import SequentialThinkingServer
+
+# Configure logging for security and debugging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server
 mcp = FastMCP(name="ustad-protocol-mcp")
@@ -68,14 +75,29 @@ async def process_thought(
     if needs_more_thoughts:
         thought_data["needsMoreThoughts"] = needs_more_thoughts
 
-    # Process the thought
-    result = thinking_server.process_thought(thought_data)
+    try:
+        # Process the thought
+        result = thinking_server.process_thought(thought_data)
 
-    # Add metadata about the thinking state
-    result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
-    result["branches"] = list(thinking_server.get_branches().keys())
+        # Add metadata about the thinking state
+        result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
+        result["branches"] = list(thinking_server.get_branches().keys())
 
-    return result
+        return result
+    except ValueError as e:
+        # Log validation errors for debugging
+        logger.warning("Thought validation error: %s", e)
+        # Return structured error response
+        return {
+            "error": "Invalid thought data",
+            "message": "The provided thought data contains invalid values",
+            "details": str(e),
+        }
+    except Exception:
+        # Log unexpected errors with full traceback
+        logger.exception("Unexpected error in process_thought")
+        # Return safe generic error
+        return {"error": "Processing failed", "message": "Unable to process thought at this time"}
 
 
 # Standalone function for Tavily search (testable)
@@ -145,13 +167,22 @@ async def search_tavily(
             }
 
     except httpx.HTTPStatusError as e:
+        # Log full error for debugging/security monitoring
+        logger.exception("Tavily API HTTP error: %s", e.response.status_code)
+        # Return safe message to client
+        if e.response.status_code == 401:
+            return {"error": "Authentication failed", "message": "Invalid API key"}
+        if e.response.status_code == 429:
+            return {"error": "Rate limited", "message": "Too many requests, please try again later"}
+        return {"error": "Search request failed", "message": "External search service unavailable"}
+    except Exception:
+        # Log full error details for debugging
+        logger.exception("Unexpected error in search_tavily")
+        # Return safe generic message to client
         return {
-            "error": "Search request failed",
-            "status_code": e.response.status_code,
-            "message": str(e),
+            "error": "Search unavailable",
+            "message": "Search service is temporarily unavailable",
         }
-    except Exception as e:
-        return {"error": "Search error", "message": str(e)}
 
 
 # Standalone function for health check (testable)
