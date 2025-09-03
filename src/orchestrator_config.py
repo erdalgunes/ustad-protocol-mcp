@@ -84,12 +84,13 @@ class OrchestratorConfig:
                 value = os.environ[env_key]
                 current_type = type(getattr(config, attr_name))
 
-                # Type conversion
-                if current_type == bool:
+                # Type conversion using isinstance
+                current_value = getattr(config, attr_name)
+                if isinstance(current_value, bool):
                     setattr(config, attr_name, value.lower() in ("true", "1", "yes"))
-                elif current_type == int:
+                elif isinstance(current_value, int):
                     setattr(config, attr_name, int(value))
-                elif current_type == float:
+                elif isinstance(current_value, float):
                     setattr(config, attr_name, float(value))
                 else:
                     setattr(config, attr_name, value)
@@ -103,7 +104,7 @@ class OrchestratorConfig:
         if not config_path.exists():
             return cls()
 
-        with open(config_path) as f:
+        with Path(config_path).open() as f:
             data = json.load(f)
 
         return cls(**data)
@@ -113,7 +114,7 @@ class OrchestratorConfig:
         config_path = Path(path)
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(config_path, "w") as f:
+        with Path(config_path).open("w") as f:
             json.dump(asdict(self), f, indent=2)
 
     def validate(self) -> tuple[bool, list[str]]:
@@ -227,7 +228,9 @@ class ConfigManager:
                     self.config = OrchestratorConfig.from_file(str(location))
                     break
                 except Exception:
-                    pass  # Continue with defaults if file is invalid
+                    # Continue with defaults if file is invalid
+                    # This is intentional - we want to use defaults if config file has errors
+                    continue
 
         # 3. Override with environment variables (highest priority)
         env_config = OrchestratorConfig.from_env()
@@ -239,7 +242,8 @@ class ConfigManager:
         # 4. Validate final configuration
         valid, errors = self.config.validate()
         if not valid:
-            raise ValueError(f"Invalid configuration: {', '.join(errors)}")
+            error_msg = f"Invalid configuration: {', '.join(errors)}"
+            raise ValueError(error_msg)
 
     def get(self) -> OrchestratorConfig:
         """Get current configuration"""
@@ -256,7 +260,8 @@ class ConfigManager:
         if hasattr(self.config, key):
             setattr(self.config, key, value)
         else:
-            raise ValueError(f"Unknown configuration key: {key}")
+            error_msg = f"Unknown configuration key: {key}"
+            raise ValueError(error_msg)
 
     def save(self, path: str | None = None):
         """Save current configuration to file"""

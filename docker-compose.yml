@@ -1,63 +1,28 @@
 version: '3.8'
 
 services:
-  # Main Ustad MCP Server with SSE transport
-  ustad-mcp:
-    build: .
-    container_name: ustad-mcp-server
+  ustad-protocol:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ustad-protocol-server
     ports:
       - "8000:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - PORT=8000
       - PYTHONUNBUFFERED=1
-    volumes:
-      # Optional: Mount for persistent data
-      - ./data:/app/data
-      # Optional: Mount for logs
-      - ./logs:/app/logs
+      - DOCKER_CONTAINER=true
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
       interval: 30s
-      timeout: 10s
+      timeout: 3s
       retries: 3
-      start_period: 40s
-    labels:
-      - "com.ustad.service=mcp-server"
-      - "com.ustad.transport=sse"
-      - "com.ustad.version=v0.1.7"
-
-  # Alternative: HTTP transport version (commented out)
-  # ustad-mcp-http:
-  #   build: .
-  #   container_name: ustad-mcp-http
-  #   command: ["python", "ustad_fastmcp.py", "--http", "8000"]
-  #   ports:
-  #     - "8001:8000"
-  #   environment:
-  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
-  #     - TAVILY_API_KEY=${TAVILY_API_KEY}
-  #   restart: unless-stopped
-
-  # Load balancer for multiple instances (optional)
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: ustad-loadbalancer
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #   depends_on:
-  #     - ustad-mcp
-  #   restart: unless-stopped
+      start_period: 5s
+    networks:
+      - ustad-network
 
 networks:
-  default:
-    name: ustad-network
-
-volumes:
-  data:
-    name: ustad-data
-  logs:
-    name: ustad-logs
+  ustad-network:
+    driver: bridge

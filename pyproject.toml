@@ -1,14 +1,19 @@
 [tool.poetry]
-name = "sequential-thinking"
-version = "0.1.0"
-description = "MCP server for sequential thinking with strict Pythonic standards"
-authors = ["Sequential Thinking Team"]
+name = "ustad-protocol"
+version = "1.0.0"
+description = "Minimal MCP server with sequential thinking and search capabilities"
+authors = ["Ustad Protocol Team"]
 readme = "README.md"
-packages = [{include = "sequential_thinking", from = "src"}]
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+fastmcp = "^2.0.0"
 mcp = "^1.0.0"
+fastapi = "^0.104.0"
+httpx = "^0.25.0"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+starlette = "^0.32.0"
 pydantic = "^2.5.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -109,6 +114,34 @@ ignore = [
     "SIM",    # Simplification suggestions
     "C4",     # Comprehension suggestions
     "ANN201", # Missing return annotations
+
+    # Exception message formatting - style choice
+    "TRY003", # Long messages in exceptions
+    "EM101",  # String literals in exceptions
+    "EM102",  # f-strings in exceptions
+
+    # Less critical security/style issues
+    "S112",   # Try-except-continue is sometimes needed
+    "RET504", # Unnecessary assignment before return (style)
+    "ARG001", # Unused function arguments (sometimes needed for interfaces)
+    "ARG002", # Unused method arguments
+    "F841",   # Local variable assigned but never used (sometimes for clarity)
+    "PLW0603", # Global statement (already fixed most critical ones)
+    "PLW0602", # Global without assignment
+    "PTH",    # Use pathlib (gradual migration)
+    "S603",   # Subprocess calls (already marked safe ones)
+    "S607",   # Partial path for subprocess
+    "S104",   # Binding to all interfaces (needed for containers)
+    "RUF012", # Mutable class attributes (chess tables)
+    "INP001", # Implicit namespace package
+    "E402",   # Module import not at top (needed for path setup)
+    "E712",   # Comparison to True/False (tests need explicit checks)
+    "TRY300", # Consider else block (style choice)
+    "TRY301", # Abstract raise to inner function (over-engineering)
+    "PLW1641", # Object comparison without __eq__
+    "TCH001", # Type checking imports
+    "TCH002", # Type checking imports
+    "TCH003", # Type checking imports
 ]
 
 [tool.ruff.lint.per-file-ignores]

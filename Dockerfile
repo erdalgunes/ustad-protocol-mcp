@@ -1,49 +1,55 @@
-# Ustad MCP Server - Multi-session SSE Container
-FROM python:3.11-slim
+# Multi-stage build for minimal image size
+FROM python:3.11-slim as builder
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
+# Install poetry and build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Copy poetry files first for better caching
+COPY pyproject.toml poetry.lock* ./
+# Install dependencies (no dev deps, no root package yet)
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root --only main
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Production stage
+FROM python:3.11-slim
 
-# Copy requirements first, then source code
-COPY src/ ./src/
-COPY ustad_fastmcp.py .
-COPY *.md .
-COPY docker-compose.yml .
+# Create non-root user for security
+RUN useradd -m -u 1000 ustaduser
 
-# Set environment variables for container
-ENV PYTHONPATH=/app/src
-ENV PYTHONUNBUFFERED=1
+# Set working directory
+WORKDIR /app
 
-# Expose port for SSE transport (default 8000)
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Copy application code
+COPY --chown=ustaduser:ustaduser ustad_mcp_server.py .
+COPY --chown=ustaduser:ustaduser src/sequential_thinking.py ./src/
+
+# Set environment variables
+ENV PATH=/home/ustaduser/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DOCKER_CONTAINER=true \
+    PORT=8000
+
+# Switch to non-root user
+USER ustaduser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()" || exit 1
+
+# Expose port
 EXPOSE 8000
 
-# Health check for container orchestration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-# Create a non-root user for security
-RUN useradd --create-home --shell /bin/bash ustad
-RUN chown -R ustad:ustad /app
-USER ustad
-
-# Default to SSE transport for multi-session support
-CMD ["python", "ustad_fastmcp.py", "--sse", "8000"]
-
-# Usage examples:
-# docker build -t ustad-mcp .
-# docker run -p 8000:8000 ustad-mcp                          # SSE (default)
-# docker run -p 8000:8000 ustad-mcp python ustad_fastmcp.py --http 8000  # HTTP
-# docker run -p 8001:8001 ustad-mcp python ustad_fastmcp.py --sse 8001   # SSE on different port
+# Run the server
+CMD ["python", "ustad_mcp_server.py"]

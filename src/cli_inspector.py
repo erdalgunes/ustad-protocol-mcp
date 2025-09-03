@@ -209,16 +209,20 @@ class CLIInspector:
         try:
             result = self.server.process_thought(branch_data)
             branches = self.server.get_branches()
-
-            if "test-branch" not in branches:
-                error_msg = "Branch not created properly"
-                raise ValueError(error_msg)
-
-            self._print_colored("✅ Branching functionality: PASSED", ColorCode.GREEN)
-            return TestResult(test_name="branching", status=TestStatus.PASSED.value, result=result)
         except Exception as e:
             self._print_colored(f"❌ Branching functionality: FAILED - {e}", ColorCode.RED)
             return TestResult(test_name="branching", status=TestStatus.FAILED.value, error=str(e))
+
+        # Verify branch was created
+        if "test-branch" not in branches:
+            error_msg = "Branch not created properly"
+            self._print_colored(f"❌ Branching functionality: FAILED - {error_msg}", ColorCode.RED)
+            return TestResult(
+                test_name="branching", status=TestStatus.FAILED.value, error=error_msg
+            )
+
+        self._print_colored("✅ Branching functionality: PASSED", ColorCode.GREEN)
+        return TestResult(test_name="branching", status=TestStatus.PASSED.value, result=result)
 
     def test_error_handling(self) -> TestResult:
         """Test error handling for various edge cases.
