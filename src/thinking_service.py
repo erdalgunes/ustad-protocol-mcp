@@ -97,7 +97,8 @@ def get_thinking_history() -> list[dict[str, Any]]:
     Returns:
         List of all processed thoughts
     """
-    return _thinking_server.get_thought_history()
+    history = _thinking_server.get_thought_history()
+    return list(history) if history else []
 
 
 def reset_thinking() -> None:

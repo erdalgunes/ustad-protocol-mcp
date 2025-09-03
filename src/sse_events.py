@@ -10,15 +10,10 @@ import uuid
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any
 
-
-class EventEmitter(Protocol):
-    """Interface for event emission (Interface Segregation Principle)."""
-
-    async def emit(self, event_data: str) -> None:
-        """Emit an SSE event to connected clients."""
-        ...
+if TYPE_CHECKING:
+    from .sse_transport import EventEmitter
 
 
 @dataclass
@@ -162,7 +157,7 @@ class GuidanceEventManager:
     into the server's thought process. Events are informational and non-blocking.
     """
 
-    def __init__(self, emitter: EventEmitter | None = None):
+    def __init__(self, emitter: "EventEmitter | None" = None):
         """Initialize event manager with optional emitter.
 
         Args:
@@ -171,7 +166,7 @@ class GuidanceEventManager:
         self._emitter = emitter
         self._enabled = emitter is not None
 
-    def set_emitter(self, emitter: EventEmitter) -> None:
+    def set_emitter(self, emitter: "EventEmitter") -> None:
         """Set the event emitter (Dependency Injection)."""
         self._emitter = emitter
         self._enabled = True
@@ -260,7 +255,7 @@ def get_guidance_manager() -> GuidanceEventManager:
     return _guidance_manager
 
 
-def set_global_emitter(emitter: EventEmitter) -> None:
+def set_global_emitter(emitter: "EventEmitter") -> None:
     """Set the global event emitter."""
     _guidance_manager.set_emitter(emitter)
 

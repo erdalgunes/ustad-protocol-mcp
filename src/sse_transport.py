@@ -7,10 +7,8 @@ sent through the actual SSE connection.
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Protocol
 from weakref import WeakSet
-
-from .sse_events import EventEmitter
 
 # Set up logging for connection tracking
 logger = logging.getLogger(__name__)
@@ -77,6 +75,14 @@ class SSEConnection:
     def close(self) -> None:
         """Mark connection as inactive."""
         self.is_active = False
+
+
+class EventEmitter(Protocol):
+    """Interface for event emission (Interface Segregation Principle)."""
+
+    async def emit(self, event_data: str) -> None:
+        """Emit an SSE event to connected clients."""
+        ...
 
 
 class GuidanceSSEEmitter(EventEmitter):
@@ -203,6 +209,7 @@ def set_sse_emitter(emitter: EventEmitter) -> None:
     _global_emitter = emitter
 
     # Configure the guidance event manager to use this emitter
+    # Deferred import to avoid circular dependency
     from .sse_events import set_global_emitter
 
     set_global_emitter(emitter)
