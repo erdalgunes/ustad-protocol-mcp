@@ -6,7 +6,7 @@ import logging
 import os
 from typing import Any
 
-from openai import APIError, AsyncOpenAI, RateLimitError
+from openai import APIConnectionError, APIError, AsyncOpenAI, RateLimitError
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,10 @@ GPT_MODEL = os.getenv("GPT_MODEL", "gpt-3.5-turbo")
 # Retry configuration
 MAX_RETRIES = 3
 BASE_WAIT_TIME = 1  # seconds
+
+# Safety limits
+MAX_INPUT_LENGTH = 5000  # characters
+MAX_RESPONSE_SIZE = 1024  # bytes
 
 
 async def analyze_intent(text: str) -> dict[str, Any]:
@@ -35,7 +39,18 @@ async def analyze_intent(text: str) -> dict[str, Any]:
         - needs_fact_check: bool indicating if fact verification needed
         - complexity: "simple"|"moderate"|"complex"
         - reasoning_steps_needed: int (minimum 10)
+
+    Raises:
+        ValueError: If input text is invalid or too long
     """
+    # Input validation
+    if not text or not isinstance(text, str):
+        raise ValueError("Input text must be a non-empty string")
+
+    text = text.strip()
+    if len(text) > MAX_INPUT_LENGTH:
+        raise ValueError(f"Input text exceeds maximum length of {MAX_INPUT_LENGTH} characters")
+
     # Fallback response for when API is unavailable
     fallback_response = {
         "intent": "task",
@@ -49,16 +64,19 @@ async def analyze_intent(text: str) -> dict[str, Any]:
         logger.info("OpenAI client not initialized (no API key), using fallback")
         return fallback_response
 
-    # Prepare the prompt for intent analysis
+    # Safely escape user input using JSON serialization
+    safe_text = json.dumps(text)[1:-1]  # Remove outer quotes
+
+    # Prepare the prompt for intent analysis with escaped input
     prompt = f"""Analyze the following text and determine:
 1. The intent (question, task, or clarification)
 2. Whether it needs fact-checking (true if it contains factual claims or questions)
 3. The complexity level (simple, moderate, or complex)
 4. The minimum reasoning steps needed (at least 10)
 
-Text: "{text}"
+Text: {json.dumps(text)}
 
-Respond in JSON format:
+Respond ONLY with valid JSON format, no additional text:
 {{
     "intent": "question|task|clarification",
     "needs_fact_check": true|false,
@@ -82,9 +100,27 @@ Respond in JSON format:
                 max_tokens=150,
             )
 
-            # Parse the response
+            # Parse the response with size validation
             content = response.choices[0].message.content
-            result = json.loads(content)
+            if not content:
+                logger.warning("Empty response from OpenAI")
+                return fallback_response
+
+            # Validate response size
+            if len(content.encode("utf-8")) > MAX_RESPONSE_SIZE:
+                logger.warning("Response exceeds maximum size limit")
+                return fallback_response
+
+            # Strip any potential markdown formatting
+            content = content.strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+
+            result = json.loads(content.strip())
 
             # Ensure minimum reasoning steps
             if result.get("reasoning_steps_needed", 0) < 10:
@@ -104,7 +140,7 @@ Respond in JSON format:
 
             return result  # type: ignore[no-any-return]
 
-        except RateLimitError as e:
+        except RateLimitError:
             wait_time = BASE_WAIT_TIME * (2**attempt)
             logger.warning(
                 "Rate limit hit, attempt %d/%d. Waiting %ds",
@@ -119,8 +155,20 @@ Respond in JSON format:
                 logger.exception("Max retries exceeded for rate limit")
                 return fallback_response
 
-        except (APIError, json.JSONDecodeError, Exception) as e:
-            logger.exception("Error analyzing intent")
+        except APIConnectionError:
+            logger.exception("API connection error")
+            return fallback_response
+
+        except APIError:
+            logger.exception("OpenAI API error")
+            return fallback_response
+
+        except json.JSONDecodeError as e:
+            logger.warning("Failed to parse OpenAI response: %s", str(e))
+            return fallback_response
+
+        except Exception:
+            logger.exception("Unexpected error in analyze_intent")
             return fallback_response
 
     return fallback_response
