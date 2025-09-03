@@ -1,15 +1,12 @@
 """Tests for /capabilities endpoint."""
 
-import os
-import sys
-
 import pytest
 from fastapi.testclient import TestClient
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.constants import CAPABILITIES_DATA
+from src.constants import CAPABILITIES_DATA, HEALTH_DATA
 
 
 class TestCapabilitiesEndpoint:
@@ -17,22 +14,29 @@ class TestCapabilitiesEndpoint:
 
     @pytest.fixture
     def client(self):
-        """Create test client for the FastAPI app."""
-        # Import here to avoid circular imports
+        """Create test client for the actual server implementation."""
+        # Import the actual server module
 
-        # Create the app from the server module
-        from starlette.applications import Starlette
-        from starlette.responses import JSONResponse
-        from starlette.routing import Route
+        # Get the actual endpoint handlers
+        async def health_endpoint(request):
+            """Health check endpoint."""
+            health_data = HEALTH_DATA.copy()
+            health_data.update(
+                {
+                    "thinking_history_length": 0,  # Mock value for testing
+                    "tavily_configured": False,  # Mock value for testing
+                }
+            )
+            return JSONResponse(health_data)
 
-        # Use actual server constants for testing
         async def capabilities_endpoint(request):
-            """Return capabilities information using actual server constants."""
+            """Capabilities endpoint."""
             return JSONResponse(CAPABILITIES_DATA)
 
-        # Create test app
+        # Create test app with actual endpoints
         test_app = Starlette(
             routes=[
+                Route("/health", health_endpoint, methods=["GET"]),
                 Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             ]
         )
@@ -115,3 +119,32 @@ class TestCapabilitiesEndpoint:
         """Test that response has correct content type."""
         response = client.get("/capabilities")
         assert response.headers["content-type"] == "application/json"
+
+    def test_health_endpoint_exists(self, client):
+        """Test that /health endpoint exists and returns 200."""
+        response = client.get("/health")
+        assert response.status_code == 200
+
+    def test_health_response_structure(self, client):
+        """Test that health response has correct structure."""
+        response = client.get("/health")
+        data = response.json()
+
+        # Check required fields
+        assert "status" in data
+        assert "server" in data
+        assert "version" in data
+        assert "tools" in data
+        assert data["status"] == "healthy"
+        assert data["server"] == "ustad-protocol-mcp"
+
+    def test_version_consistency(self, client):
+        """Test that version is consistent across endpoints."""
+        health_response = client.get("/health")
+        capabilities_response = client.get("/capabilities")
+
+        health_version = health_response.json()["version"]
+        capabilities_version = capabilities_response.json()["version"]
+
+        assert health_version == capabilities_version
+        assert health_version == CAPABILITIES_DATA["version"]

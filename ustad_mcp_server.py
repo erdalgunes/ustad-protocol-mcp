@@ -156,10 +156,9 @@ async def ustad_search(
         return {"error": "Search error", "message": str(e)}
 
 
-@mcp.resource("health://server/status")  # type: ignore[misc]
-async def health_check() -> dict[str, Any]:
+def get_health_data() -> dict[str, Any]:
     """
-    Health check endpoint for container orchestration.
+    Get current health status data.
 
     Returns:
         Dictionary with server health status
@@ -174,7 +173,28 @@ async def health_check() -> dict[str, Any]:
     return health_data
 
 
-@mcp.resource("capabilities://server/info")  # type: ignore[misc]
+def get_capabilities_data() -> dict[str, Any]:
+    """
+    Get server capabilities data.
+
+    Returns:
+        Dictionary with server version, features, and available tools
+    """
+    return CAPABILITIES_DATA.copy()
+
+
+@mcp.resource("health://status")  # type: ignore[misc]
+async def health_check() -> dict[str, Any]:
+    """
+    Health check endpoint for container orchestration.
+
+    Returns:
+        Dictionary with server health status
+    """
+    return get_health_data()
+
+
+@mcp.resource("capabilities://info")  # type: ignore[misc]
 async def capabilities() -> dict[str, Any]:
     """
     Capabilities endpoint for version and feature detection.
@@ -182,7 +202,7 @@ async def capabilities() -> dict[str, Any]:
     Returns:
         Dictionary with server version, features, and available tools
     """
-    return CAPABILITIES_DATA.copy()
+    return get_capabilities_data()
 
 
 if __name__ == "__main__":
@@ -209,18 +229,11 @@ if __name__ == "__main__":
 
     async def health_check(request: Any) -> Any:  # Returns JSONResponse
         """Health check endpoint."""
-        health_data = HEALTH_DATA.copy()
-        health_data.update(
-            {
-                "thinking_history_length": len(thinking_server.get_thought_history()),
-                "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
-            }
-        )
-        return JSONResponse(health_data)
+        return JSONResponse(get_health_data())
 
     async def capabilities_endpoint(request: Any) -> Any:  # Returns JSONResponse
         """Capabilities endpoint for version and feature detection."""
-        return JSONResponse(CAPABILITIES_DATA)
+        return JSONResponse(get_capabilities_data())
 
     # Create Starlette app for SSE
     sse_app = Starlette(
