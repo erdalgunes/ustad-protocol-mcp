@@ -465,6 +465,33 @@ mcp__ustad-protocol-mcp__ustad_think
 - Can set environment variables directly
 - Can check deployment status and logs
 
+## 🧠 CRITICAL: Check Environment Variables First
+
+### MANDATORY: Always Check Existing Environment Variables
+```bash
+# BEFORE asking for manual input - CHECK WHAT EXISTS!
+echo $RENDER_API_KEY
+echo $TAVILY_API_KEY
+echo $GITHUB_TOKEN
+env | grep -i api
+
+# Check macOS Keychain for stored API keys
+security find-generic-password -s "RENDER_API_KEY" -w 2>/dev/null
+security find-generic-password -s "GITHUB_TOKEN" -w 2>/dev/null
+
+# Use existing environment variables in commands
+export RENDER_API_KEY=$(security find-generic-password -s "RENDER_API_KEY" -w 2>/dev/null)
+claude mcp add render-mcp --scope user -- docker run -i --env RENDER_API_KEY=$RENDER_API_KEY mcp/render
+```
+
+### Anti-Pattern: Asking for Manual Input
+- ❌ "Please go get your API key from the dashboard"
+- ❌ "Enter your API key here"
+- ❌ "Replace YOUR_API_KEY_HERE with your key"
+- ✅ Check environment first: `echo $RENDER_API_KEY`
+- ✅ Use existing variables: `$RENDER_API_KEY`
+- ✅ Only ask if variable doesn't exist
+
 ## 🔄 Recovery Procedures
 
 ### When Things Go Wrong
