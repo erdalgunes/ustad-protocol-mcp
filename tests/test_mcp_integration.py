@@ -183,3 +183,145 @@ class TestMcpIntegration:
             data = result.structured_content or result.data
             assert data["branchId"] == "alternative"
             assert "alternative" in data["branches"]
+
+    async def test_error_handling_invalid_thought_number(self) -> None:
+        """Test error handling for invalid thought number."""
+        async with Client(mcp) as client:
+            result = await client.call_tool(
+                "ustad_think",
+                {
+                    "thought": "Invalid thought",
+                    "thought_number": 0,  # Invalid: should be >= 1
+                    "total_thoughts": 3,
+                    "next_thought_needed": True,
+                },
+            )
+
+            data = result.structured_content or result.data
+            assert "error" in data
+            assert "invalid" in data["error"].lower() or "thought" in data["error"].lower()
+
+    async def test_error_handling_missing_required_field(self) -> None:
+        """Test error handling for missing required fields."""
+        from fastmcp.exceptions import ToolError
+
+        async with Client(mcp) as client:
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool(
+                    "ustad_think",
+                    {
+                        "thought": "Missing fields",
+                        # Missing thought_number and total_thoughts
+                        "next_thought_needed": True,
+                    },
+                )
+
+            # Verify the error message mentions required fields
+            assert "required" in str(exc_info.value).lower()
+
+    async def test_search_with_different_search_types(self) -> None:
+        """Test search with different search types."""
+        with patch("httpx.AsyncClient") as mock_client_class:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "answer": "News results",
+                "results": [
+                    {"title": "News", "url": "https://example.com", "content": "News content"}
+                ],
+            }
+            mock_response.raise_for_status = Mock()
+
+            mock_client = AsyncMock()
+            mock_client.post = AsyncMock(return_value=mock_response)
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+
+            with patch.dict(os.environ, {"TAVILY_API_KEY": "test-key"}):
+                async with Client(mcp) as client:
+                    # Test news search type
+                    result = await client.call_tool(
+                        "ustad_search",
+                        {"query": "latest news", "search_type": "news", "max_results": 1},
+                    )
+
+                    data = result.structured_content or result.data
+                    assert "results" in data
+
+                    # Verify the API was called with news endpoint
+                    mock_client.post.assert_called()
+                    call_args = mock_client.post.call_args
+                    assert "news" in str(call_args)
+
+    async def test_concurrent_thinking_sessions(self) -> None:
+        """Test handling of concurrent thinking sessions."""
+        async with Client(mcp) as client:
+            # Start first thinking session
+            result1 = await client.call_tool(
+                "ustad_think",
+                {
+                    "thought": "First session",
+                    "thought_number": 1,
+                    "total_thoughts": 2,
+                    "next_thought_needed": True,
+                },
+            )
+
+            # Start second thinking session (should reset)
+            result2 = await client.call_tool(
+                "ustad_think",
+                {
+                    "thought": "Second session",
+                    "thought_number": 1,
+                    "total_thoughts": 3,
+                    "next_thought_needed": True,
+                },
+            )
+
+            data1 = result1.structured_content or result1.data
+            data2 = result2.structured_content or result2.data
+
+            # Both should succeed
+            assert data1["thoughtNumber"] == 1
+            assert data2["thoughtNumber"] == 1
+            # History should accumulate
+            assert data2["thoughtHistoryLength"] > data1["thoughtHistoryLength"]
+
+    async def test_search_empty_query(self) -> None:
+        """Test search with empty query."""
+        with patch.dict(os.environ, {"TAVILY_API_KEY": "test-key"}):
+            async with Client(mcp) as client:
+                result = await client.call_tool("ustad_search", {"query": "", "max_results": 1})
+
+                data = result.structured_content or result.data
+                # Should handle empty query gracefully
+                assert "error" in data or "results" in data
+
+    async def test_max_results_boundary(self) -> None:
+        """Test search with boundary values for max_results."""
+        with patch("httpx.AsyncClient") as mock_client_class:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "answer": "Test",
+                "results": [
+                    {
+                        "title": f"Result {i}",
+                        "url": f"https://example{i}.com",
+                        "content": f"Content {i}",
+                    }
+                    for i in range(10)
+                ],
+            }
+            mock_response.raise_for_status = Mock()
+
+            mock_client = AsyncMock()
+            mock_client.post = AsyncMock(return_value=mock_response)
+            mock_client_class.return_value.__aenter__.return_value = mock_client
+
+            with patch.dict(os.environ, {"TAVILY_API_KEY": "test-key"}):
+                async with Client(mcp) as client:
+                    # Test with max value
+                    result = await client.call_tool(
+                        "ustad_search", {"query": "test", "max_results": 10}
+                    )
+
+                    data = result.structured_content or result.data
+                    assert len(data["results"]) <= 10
