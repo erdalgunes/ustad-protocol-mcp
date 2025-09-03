@@ -13,8 +13,11 @@ Security Features:
 
 import logging
 import os
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
+# Type checking imports - only used by mypy, not at runtime
+
+# Runtime imports with graceful degradation
 try:
     from fastmcp.server.middleware.rate_limiting import (
         RateLimitError,
@@ -24,12 +27,20 @@ try:
 
     _FASTMCP_AVAILABLE = True
 except ImportError:
-    # Graceful degradation if FastMCP rate limiting not available
     _FASTMCP_AVAILABLE = False
-    # Use Any to avoid type issues with None assignments
-    RateLimitingMiddleware = None
-    TokenBucketRateLimiter = None
-    RateLimitError = None
+
+    # Define Protocol fallbacks for type checking when FastMCP is not available
+    @runtime_checkable
+    class RateLimitingMiddleware(Protocol):  # type: ignore[no-redef]
+        """Fallback protocol for RateLimitingMiddleware."""
+
+    @runtime_checkable
+    class TokenBucketRateLimiter(Protocol):  # type: ignore[no-redef]
+        """Fallback protocol for TokenBucketRateLimiter."""
+
+    class RateLimitError(Exception):  # type: ignore[no-redef]
+        """Fallback exception for RateLimitError."""
+
 
 logger = logging.getLogger(__name__)
 
