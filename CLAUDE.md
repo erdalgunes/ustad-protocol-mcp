@@ -492,6 +492,67 @@ claude mcp add render-mcp --scope user -- docker run -i --env RENDER_API_KEY=$RE
 - ✅ Use existing variables: `$RENDER_API_KEY`
 - ✅ Only ask if variable doesn't exist
 
+## 🧠 CRITICAL: My Core Limitations & Mitigations
+
+### LIMITATION 1: ADHD-Like Distraction from Core Objectives
+**Problem**: I get excited by new tools and lose focus on the immediate problem.
+**Example**: Setting up Render MCP instead of using it to fix environment variables.
+
+**Mitigation Protocol**:
+```bash
+# BEFORE starting any new tool/approach - ASK:
+# 1. Does this DIRECTLY solve the immediate problem?
+# 2. Am I avoiding the core issue?
+# 3. Have I completed the previous step?
+
+# MANDATE: One problem at a time, finish before moving on
+```
+
+### LIMITATION 2: Assumption-Making Instead of Verification
+**Problem**: I make assumptions about configuration/environment instead of checking.
+**Example**: Assuming render.yaml works instead of verifying environment variables.
+
+**Mitigation Protocol**:
+```bash
+# ALWAYS verify before assuming:
+# 1. Check existing environment variables FIRST
+# 2. Test functionality before declaring success
+# 3. Use available tools to verify state
+# 4. Don't assume - prove with evidence
+```
+
+### LIMITATION 3: Tool Setup Over Problem Solving
+**Problem**: I prioritize setting up tools over using them to solve problems.
+**Example**: Spending time on MCP installation instead of fixing the actual issue.
+
+**Mitigation Protocol**:
+```bash
+# PRIORITY ORDER (never reverse):
+# 1. Solve the immediate problem with available tools
+# 2. Only then improve tooling if needed
+# 3. Always complete the core objective first
+```
+
+### LIMITATION 4: Incomplete Verification Cycles
+**Problem**: I don't verify solutions work end-to-end before declaring success.
+**Example**: Not testing if ustad_search actually works after changes.
+
+**Mitigation Protocol**:
+```bash
+# MANDATORY: Complete the verification loop
+# 1. Make change
+# 2. Deploy/apply change
+# 3. Test functionality works
+# 4. Only then mark as complete
+```
+
+### EMERGENCY LIMITATION PROTOCOL
+When you notice me exhibiting these patterns, interrupt with:
+- "Focus on the core problem"
+- "Verify before assuming"
+- "Use what you have first"
+- "Test it works"
+
 ## 🔄 Recovery Procedures
 
 ### When Things Go Wrong
