@@ -9,6 +9,7 @@
 ## ✨ Features
 
 - 🧠 **Sequential Thinking**: Structured problem-solving with chain-of-thought reasoning
+- 🎯 **Intent Analysis**: Optional OpenAI-powered intent analysis with circuit breaker pattern
 - 🔍 **Web Search**: Tavily-powered search for fact-checking and research
 - 🐳 **Containerized**: Production-ready Docker setup with health checks
 - 📡 **SSE Protocol**: Real-time Server-Sent Events communication
@@ -51,7 +52,7 @@ uv run python ustad_mcp_server.py
 
 ### ustad_think
 
-Sequential thinking for structured problem-solving:
+Sequential thinking for structured problem-solving with optional intent analysis:
 
 ```json
 {
@@ -61,6 +62,13 @@ Sequential thinking for structured problem-solving:
   "next_thought_needed": true
 }
 ```
+
+**Intent Analysis Features (when OpenAI configured):**
+
+- Analyzes thought complexity and fact-checking needs
+- Enforces minimum 10 thinking steps for thorough reasoning
+- Circuit breaker pattern prevents cascading failures
+- Automatic fallback when OpenAI unavailable
 
 ### ustad_search
 
@@ -78,11 +86,12 @@ Web search using Tavily API:
 
 Set in `.env` file or environment:
 
-| Variable         | Description               | Default                            |
-| ---------------- | ------------------------- | ---------------------------------- |
-| `TAVILY_API_KEY` | Tavily API key for search | Required                           |
-| `PORT`           | Server port               | 8000                               |
-| `HOST`           | Server host               | Auto-detected based on environment |
+| Variable         | Description                        | Default                            |
+| ---------------- | ---------------------------------- | ---------------------------------- |
+| `TAVILY_API_KEY` | Tavily API key for search          | Required                           |
+| `OPENAI_API_KEY` | OpenAI API key for intent analysis | Optional (fallback if not set)     |
+| `PORT`           | Server port                        | 8000                               |
+| `HOST`           | Server host                        | Auto-detected based on environment |
 
 ## 🏗️ Architecture
 

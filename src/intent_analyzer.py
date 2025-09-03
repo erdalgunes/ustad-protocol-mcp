@@ -72,10 +72,11 @@ class CircuitBreaker:
 
 
 class IntentAnalyzer:
-    """Analyzes user intent using OpenAI GPT-3.5."""
+    """Analyzes user intent using OpenAI GPT models."""
 
-    def __init__(self) -> None:
+    def __init__(self, model: str = "gpt-3.5-turbo") -> None:
         self.client = None
+        self.model = model  # Can be "gpt-3.5-turbo", "gpt-4", "o1-preview", "o1-mini"
         self.circuit_breaker = CircuitBreaker()
         self._initialize_client()
 
@@ -87,7 +88,7 @@ class IntentAnalyzer:
                 from openai import AsyncOpenAI
 
                 self.client = AsyncOpenAI(api_key=api_key)
-                logger.info("OpenAI client initialized successfully")
+                logger.info("OpenAI client initialized successfully with model: %s", self.model)
             except ImportError:
                 logger.warning("OpenAI library not installed")
                 self.client = None
@@ -179,18 +180,32 @@ Respond in JSON format:
         if not self.client:
             raise RuntimeError("OpenAI client not initialized")
 
-        response = await self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an intent analysis assistant. Respond only with valid JSON.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.3,
-            max_tokens=200,
-        )
+        # Reasoning models (o1) don't support system messages or temperature
+        if self.model.startswith("o1"):
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"You are an intent analysis assistant. {prompt}\n\nRespond ONLY with valid JSON.",
+                    }
+                ],
+                max_tokens=500,  # o1 models need more tokens for reasoning
+            )
+        else:
+            # Standard GPT models
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an intent analysis assistant. Respond only with valid JSON.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.3,
+                max_tokens=200,
+            )
 
         return str(response.choices[0].message.content)
 
@@ -230,7 +245,10 @@ def get_intent_analyzer() -> IntentAnalyzer:
     """Get or create the global intent analyzer instance."""
     global _analyzer
     if _analyzer is None:
-        _analyzer = IntentAnalyzer()
+        # Get model from environment, default to gpt-3.5-turbo
+        model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+        logger.info("Initializing IntentAnalyzer with model: %s", model)
+        _analyzer = IntentAnalyzer(model=model)
     return _analyzer
 
 
