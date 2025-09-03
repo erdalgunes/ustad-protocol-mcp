@@ -1,6 +1,7 @@
 """Comprehensive tests for sequential thinking module."""
 
 import pytest
+
 from src.sequential_thinking import SequentialThinkingServer, ThoughtData
 
 
@@ -86,7 +87,7 @@ class TestSequentialThinkingServer:
     def test_process_multiple_thoughts(self) -> None:
         """Test processing multiple sequential thoughts."""
         server = SequentialThinkingServer()
-        
+
         for i in range(1, 4):
             thought_data = {
                 "thought": f"Thought {i}",
@@ -103,31 +104,37 @@ class TestSequentialThinkingServer:
     def test_process_thought_with_revision(self) -> None:
         """Test processing a thought that revises a previous thought."""
         server = SequentialThinkingServer()
-        
+
         # Add initial thoughts
-        server.process_thought({
-            "thought": "Initial thought",
-            "thoughtNumber": 1,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-        })
-        
-        server.process_thought({
-            "thought": "Second thought",
-            "thoughtNumber": 2,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-        })
+        server.process_thought(
+            {
+                "thought": "Initial thought",
+                "thoughtNumber": 1,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+            }
+        )
+
+        server.process_thought(
+            {
+                "thought": "Second thought",
+                "thoughtNumber": 2,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+            }
+        )
 
         # Add revision
-        result = server.process_thought({
-            "thought": "Revised first thought",
-            "thoughtNumber": 3,
-            "totalThoughts": 4,
-            "nextThoughtNeeded": True,
-            "isRevision": True,
-            "revisesThought": 1,
-        })
+        result = server.process_thought(
+            {
+                "thought": "Revised first thought",
+                "thoughtNumber": 3,
+                "totalThoughts": 4,
+                "nextThoughtNeeded": True,
+                "isRevision": True,
+                "revisesThought": 1,
+            }
+        )
 
         assert result["isRevision"] is True
         assert result["revisesThought"] == 1
@@ -136,24 +143,28 @@ class TestSequentialThinkingServer:
     def test_process_thought_with_branching(self) -> None:
         """Test processing thoughts with branching."""
         server = SequentialThinkingServer()
-        
+
         # Main branch
-        server.process_thought({
-            "thought": "Main thought 1",
-            "thoughtNumber": 1,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Main thought 1",
+                "thoughtNumber": 1,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+            }
+        )
+
         # Branch from thought 1
-        server.process_thought({
-            "thought": "Branch A thought",
-            "thoughtNumber": 2,
-            "totalThoughts": 4,
-            "nextThoughtNeeded": True,
-            "branchFromThought": 1,
-            "branchId": "branch-a",
-        })
+        server.process_thought(
+            {
+                "thought": "Branch A thought",
+                "thoughtNumber": 2,
+                "totalThoughts": 4,
+                "nextThoughtNeeded": True,
+                "branchFromThought": 1,
+                "branchId": "branch-a",
+            }
+        )
 
         branches = server.get_branches()
         assert "branch-a" in branches
@@ -163,92 +174,110 @@ class TestSequentialThinkingServer:
     def test_validation_missing_required_field(self) -> None:
         """Test validation for missing required fields."""
         server = SequentialThinkingServer()
-        
+
         with pytest.raises(ValueError, match="Missing required field: thought"):
-            server.process_thought({
-                "thoughtNumber": 1,
-                "totalThoughts": 3,
-                "nextThoughtNeeded": True,
-            })
+            server.process_thought(
+                {
+                    "thoughtNumber": 1,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                }
+            )
 
     def test_validation_empty_thought(self) -> None:
         """Test validation for empty thought content."""
         server = SequentialThinkingServer()
-        
-        with pytest.raises(ValueError, match="Thought cannot be empty"):
-            server.process_thought({
-                "thought": "",
-                "thoughtNumber": 1,
-                "totalThoughts": 3,
-                "nextThoughtNeeded": True,
-            })
 
         with pytest.raises(ValueError, match="Thought cannot be empty"):
-            server.process_thought({
-                "thought": "   ",
-                "thoughtNumber": 1,
-                "totalThoughts": 3,
-                "nextThoughtNeeded": True,
-            })
+            server.process_thought(
+                {
+                    "thought": "",
+                    "thoughtNumber": 1,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                }
+            )
+
+        with pytest.raises(ValueError, match="Thought cannot be empty"):
+            server.process_thought(
+                {
+                    "thought": "   ",
+                    "thoughtNumber": 1,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                }
+            )
 
     def test_validation_invalid_thought_number(self) -> None:
         """Test validation for invalid thought number."""
         server = SequentialThinkingServer()
-        
+
         with pytest.raises(ValueError, match="Invalid thought number: 0"):
-            server.process_thought({
-                "thought": "Test",
-                "thoughtNumber": 0,
-                "totalThoughts": 3,
-                "nextThoughtNeeded": True,
-            })
+            server.process_thought(
+                {
+                    "thought": "Test",
+                    "thoughtNumber": 0,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                }
+            )
 
         with pytest.raises(ValueError, match="Invalid thought number: -1"):
-            server.process_thought({
-                "thought": "Test",
-                "thoughtNumber": -1,
-                "totalThoughts": 3,
-                "nextThoughtNeeded": True,
-            })
+            server.process_thought(
+                {
+                    "thought": "Test",
+                    "thoughtNumber": -1,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                }
+            )
 
     def test_validation_invalid_revision_target(self) -> None:
         """Test validation for revising non-existent thought."""
         server = SequentialThinkingServer()
-        
-        server.process_thought({
-            "thought": "First thought",
-            "thoughtNumber": 1,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-        })
 
-        with pytest.raises(ValueError, match="Cannot revise non-existent thought 5"):
-            server.process_thought({
-                "thought": "Revision",
-                "thoughtNumber": 2,
+        server.process_thought(
+            {
+                "thought": "First thought",
+                "thoughtNumber": 1,
                 "totalThoughts": 3,
                 "nextThoughtNeeded": True,
-                "isRevision": True,
-                "revisesThought": 5,
-            })
+            }
+        )
+
+        with pytest.raises(ValueError, match="Cannot revise non-existent thought 5"):
+            server.process_thought(
+                {
+                    "thought": "Revision",
+                    "thoughtNumber": 2,
+                    "totalThoughts": 3,
+                    "nextThoughtNeeded": True,
+                    "isRevision": True,
+                    "revisesThought": 5,
+                }
+            )
 
     def test_get_thought_history(self) -> None:
         """Test getting thought history."""
         server = SequentialThinkingServer()
-        
-        server.process_thought({
-            "thought": "First",
-            "thoughtNumber": 1,
-            "totalThoughts": 2,
-            "nextThoughtNeeded": True,
-        })
-        
-        server.process_thought({
-            "thought": "Second",
-            "thoughtNumber": 2,
-            "totalThoughts": 2,
-            "nextThoughtNeeded": False,
-        })
+
+        server.process_thought(
+            {
+                "thought": "First",
+                "thoughtNumber": 1,
+                "totalThoughts": 2,
+                "nextThoughtNeeded": True,
+            }
+        )
+
+        server.process_thought(
+            {
+                "thought": "Second",
+                "thoughtNumber": 2,
+                "totalThoughts": 2,
+                "nextThoughtNeeded": False,
+            }
+        )
 
         history = server.get_thought_history()
         assert len(history) == 2
@@ -259,7 +288,7 @@ class TestSequentialThinkingServer:
     def test_get_summary(self) -> None:
         """Test getting thinking process summary."""
         server = SequentialThinkingServer()
-        
+
         # Empty summary
         summary = server.get_summary()
         assert summary["total_thoughts"] == 0
@@ -268,29 +297,35 @@ class TestSequentialThinkingServer:
         assert summary["is_complete"] is False
 
         # Add thoughts with revision and branch
-        server.process_thought({
-            "thought": "Initial",
-            "thoughtNumber": 1,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-        })
-        
-        server.process_thought({
-            "thought": "Revised",
-            "thoughtNumber": 2,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-            "isRevision": True,
-            "revisesThought": 1,
-        })
-        
-        server.process_thought({
-            "thought": "Branched",
-            "thoughtNumber": 3,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": False,
-            "branchId": "alt",
-        })
+        server.process_thought(
+            {
+                "thought": "Initial",
+                "thoughtNumber": 1,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+            }
+        )
+
+        server.process_thought(
+            {
+                "thought": "Revised",
+                "thoughtNumber": 2,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+                "isRevision": True,
+                "revisesThought": 1,
+            }
+        )
+
+        server.process_thought(
+            {
+                "thought": "Branched",
+                "thoughtNumber": 3,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": False,
+                "branchId": "alt",
+            }
+        )
 
         summary = server.get_summary()
         assert summary["total_thoughts"] == 3
@@ -302,21 +337,23 @@ class TestSequentialThinkingServer:
     def test_reset(self) -> None:
         """Test resetting the server state."""
         server = SequentialThinkingServer()
-        
+
         # Add some thoughts
-        server.process_thought({
-            "thought": "Test",
-            "thoughtNumber": 1,
-            "totalThoughts": 1,
-            "nextThoughtNeeded": False,
-        })
+        server.process_thought(
+            {
+                "thought": "Test",
+                "thoughtNumber": 1,
+                "totalThoughts": 1,
+                "nextThoughtNeeded": False,
+            }
+        )
 
         assert len(server.thought_history) == 1
         assert server.is_complete() is True
 
         # Reset
         server.reset()
-        
+
         assert len(server.thought_history) == 0
         assert server.is_complete() is False
         assert server.get_current_thought_number() == 0
@@ -325,14 +362,16 @@ class TestSequentialThinkingServer:
     def test_needs_more_thoughts(self) -> None:
         """Test handling needs_more_thoughts flag."""
         server = SequentialThinkingServer()
-        
-        result = server.process_thought({
-            "thought": "Complex problem",
-            "thoughtNumber": 3,
-            "totalThoughts": 3,
-            "nextThoughtNeeded": True,
-            "needsMoreThoughts": True,
-        })
+
+        result = server.process_thought(
+            {
+                "thought": "Complex problem",
+                "thoughtNumber": 3,
+                "totalThoughts": 3,
+                "nextThoughtNeeded": True,
+                "needsMoreThoughts": True,
+            }
+        )
 
         assert result["needsMoreThoughts"] is True
         assert result["nextThoughtNeeded"] is True
@@ -340,65 +379,77 @@ class TestSequentialThinkingServer:
     def test_complete_thinking_flow(self) -> None:
         """Test a complete thinking flow with revision and branching."""
         server = SequentialThinkingServer()
-        
+
         # Start thinking
-        server.process_thought({
-            "thought": "Analyze the problem",
-            "thoughtNumber": 1,
-            "totalThoughts": 5,
-            "nextThoughtNeeded": True,
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Analyze the problem",
+                "thoughtNumber": 1,
+                "totalThoughts": 5,
+                "nextThoughtNeeded": True,
+            }
+        )
+
         # Continue
-        server.process_thought({
-            "thought": "Consider approach A",
-            "thoughtNumber": 2,
-            "totalThoughts": 5,
-            "nextThoughtNeeded": True,
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Consider approach A",
+                "thoughtNumber": 2,
+                "totalThoughts": 5,
+                "nextThoughtNeeded": True,
+            }
+        )
+
         # Branch to explore alternative
-        server.process_thought({
-            "thought": "Explore approach B",
-            "thoughtNumber": 3,
-            "totalThoughts": 6,
-            "nextThoughtNeeded": True,
-            "branchFromThought": 2,
-            "branchId": "approach-b",
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Explore approach B",
+                "thoughtNumber": 3,
+                "totalThoughts": 6,
+                "nextThoughtNeeded": True,
+                "branchFromThought": 2,
+                "branchId": "approach-b",
+            }
+        )
+
         # Revise initial analysis
-        server.process_thought({
-            "thought": "Refined problem analysis",
-            "thoughtNumber": 4,
-            "totalThoughts": 6,
-            "nextThoughtNeeded": True,
-            "isRevision": True,
-            "revisesThought": 1,
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Refined problem analysis",
+                "thoughtNumber": 4,
+                "totalThoughts": 6,
+                "nextThoughtNeeded": True,
+                "isRevision": True,
+                "revisesThought": 1,
+            }
+        )
+
         # Need more thoughts than expected
-        server.process_thought({
-            "thought": "Additional consideration",
-            "thoughtNumber": 5,
-            "totalThoughts": 6,
-            "nextThoughtNeeded": True,
-            "needsMoreThoughts": True,
-        })
-        
+        server.process_thought(
+            {
+                "thought": "Additional consideration",
+                "thoughtNumber": 5,
+                "totalThoughts": 6,
+                "nextThoughtNeeded": True,
+                "needsMoreThoughts": True,
+            }
+        )
+
         # Final conclusion
-        server.process_thought({
-            "thought": "Final solution",
-            "thoughtNumber": 6,
-            "totalThoughts": 7,
-            "nextThoughtNeeded": False,
-        })
+        server.process_thought(
+            {
+                "thought": "Final solution",
+                "thoughtNumber": 6,
+                "totalThoughts": 7,
+                "nextThoughtNeeded": False,
+            }
+        )
 
         # Verify final state
         assert server.is_complete() is True
         assert len(server.thought_history) == 6
         assert server.get_current_thought_number() == 6
-        
+
         summary = server.get_summary()
         assert summary["total_thoughts"] == 6
         assert summary["branches_created"] == 1
