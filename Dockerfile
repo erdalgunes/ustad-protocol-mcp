@@ -41,7 +41,7 @@ ENV PATH=/home/ustaduser/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     DOCKER_CONTAINER=true \
-    PORT=8000
+    PORT=8080
 
 # Switch to non-root user
 USER ustaduser
@@ -51,7 +51,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python scripts/health_check.py || exit 1
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Run the server
 CMD ["python", "ustad_mcp_server.py"]
