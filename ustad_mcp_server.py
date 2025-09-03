@@ -260,11 +260,16 @@ if __name__ == "__main__":
     # Create handler for SSE connection
     async def handle_sse(request: Request) -> None:
         """Handle SSE connections and run MCP server."""
-        async with sse_transport.connect_sse(request.scope, request.receive, request._send) as (
-            in_stream,
-            out_stream,
-        ):
-            await server.run(in_stream, out_stream, server.create_initialization_options())
+        async with sse_transport.connect_sse(
+            request.scope,
+            request.receive,
+            request._send,
+        ) as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                server.create_initialization_options(),
+            )
 
     # Create Starlette app for SSE
     app = Starlette(
@@ -272,7 +277,7 @@ if __name__ == "__main__":
             Route("/health", health_check, methods=["GET"]),
             Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             Route("/sse", handle_sse, methods=["GET"]),
-            Mount("/messages/", app=sse_transport.handle_post_message),
+            Mount("/messages/", sse_transport.handle_post_message),
         ]
     )
 
