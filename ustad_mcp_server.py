@@ -172,5 +172,5 @@ if __name__ == "__main__":
     print("🔧 Tools: ustad_think, ustad_search")
     print(f"🔑 Tavily API: {'✓ Configured' if os.getenv('TAVILY_API_KEY') else '✗ Not configured'}")
 
-    # Run with HTTP transport (SSE doesn't support custom routes)
+    # Run with HTTP transport for Render compatibility
     mcp.run(transport="http", host=host, port=port)
