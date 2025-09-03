@@ -217,13 +217,10 @@ if __name__ == "__main__":
     # Create SSE transport
     transport = SseServerTransport("/messages/")
 
-    # Set up the MCP server to handle SSE connections
+    # Wrapper to run MCP server with SSE transport
     async def handle_sse(scope: Any, receive: Any, send: Any) -> None:
-        """Handle SSE connections for MCP."""
-        async with transport.connect_sse(scope, receive, send) as (
-            in_stream,
-            out_stream,
-        ):
+        """Handle SSE connections and run MCP server."""
+        async with transport.connect_sse(scope, receive, send) as (in_stream, out_stream):
             await mcp._mcp_server.run(
                 in_stream, out_stream, mcp._mcp_server.create_initialization_options()
             )
