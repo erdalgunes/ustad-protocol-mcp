@@ -388,6 +388,27 @@ Types: feat, fix, docs, style, refactor, test, chore
 - [x] Completed task (done: 2025-09-03)
 ```
 
+## 🚨 CRITICAL: Never Skip Pre-commit Checks
+
+### MANDATORY RULE: NO SKIPPING
+```bash
+# NEVER do this:
+SKIP=mypy git commit  # ❌ FORBIDDEN
+SKIP=ruff git commit  # ❌ FORBIDDEN
+SKIP=bandit git commit  # ❌ FORBIDDEN
+
+# ALWAYS fix the issues:
+# 1. Address MyPy errors properly
+# 2. Fix linting issues
+# 3. Only commit when ALL checks pass
+```
+
+### Why This Rule Exists
+- Pre-commit hooks prevent broken code in main branch
+- Type safety is critical for production systems
+- Skipping checks introduces technical debt
+- Other developers depend on clean commits
+
 ## 🔄 Recovery Procedures
 
 ### When Things Go Wrong

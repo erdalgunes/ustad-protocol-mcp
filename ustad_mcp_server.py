@@ -27,8 +27,8 @@ server = Server("ustad-protocol-mcp")
 thinking_server = SequentialThinkingServer()
 
 
-@server.list_tools()
-async def list_tools() -> list[Tool]:
+@server.list_tools()  # type: ignore[misc]
+async def list_tools() -> list[Tool]:  # type: ignore[no-any-unimported]
     """List available tools."""
     return [
         Tool(
@@ -100,7 +100,7 @@ async def list_tools() -> list[Tool]:
     ]
 
 
-@server.call_tool()
+@server.call_tool()  # type: ignore[misc]
 async def call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]]:
     """Handle tool calls."""
     if name == "ustad_think":
@@ -136,6 +136,10 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]
     if name == "ustad_search":
         # Get Tavily API key from environment
         api_key = os.getenv("TAVILY_API_KEY")
+        print(f"DEBUG: API key present: {bool(api_key)}")
+        print(f"DEBUG: API key length: {len(api_key) if api_key else 0}")
+        print(f"DEBUG: API key starts with: {api_key[:10] if api_key else 'None'}...")
+
         if not api_key:
             error_result = {
                 "error": "Tavily API key not configured",
@@ -187,10 +191,14 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]
                 return [{"type": "text", "text": json.dumps(result)}]
 
         except httpx.HTTPStatusError as e:
+            print(f"DEBUG: HTTP Error - Status: {e.response.status_code}")
+            print(f"DEBUG: Response text: {e.response.text}")
+            print(f"DEBUG: Request payload was: {payload}")
             error_result = {
                 "error": "Search request failed",
                 "status_code": e.response.status_code,
                 "message": str(e),
+                "response_text": e.response.text[:200],
             }
             return [{"type": "text", "text": json.dumps(error_result)}]
         except Exception as e:
@@ -218,13 +226,13 @@ def get_capabilities_data() -> dict[str, Any]:
     return CAPABILITIES_DATA.copy()
 
 
-async def health_check(request):
+async def health_check(request: Any) -> JSONResponse:  # type: ignore[no-any-unimported]
     """Health check endpoint for deployment platforms like Render."""
     health_data = get_health_data()
     return JSONResponse(health_data)
 
 
-def main():
+def main() -> None:
     """Run the MCP server with SSE transport."""
     import uvicorn
     from mcp.server.models import InitializationOptions
@@ -239,7 +247,7 @@ def main():
     sse = SseServerTransport("/messages/")
 
     # SSE handler
-    async def handle_sse(request):
+    async def handle_sse(request: Any) -> Response:  # type: ignore[no-any-unimported]
         async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
             await server.run(
                 streams[0],
@@ -259,11 +267,11 @@ def main():
     ]
 
     # Add health check route
-    async def health_check(request):
+    async def health_check_inner(request: Any) -> JSONResponse:  # type: ignore[no-any-unimported]
         health_data = get_health_data()
         return JSONResponse(health_data)
 
-    routes.append(Route("/health", endpoint=health_check, methods=["GET"]))
+    routes.append(Route("/health", endpoint=health_check_inner, methods=["GET"]))
 
     # Create and run Starlette app
     starlette_app = Starlette(routes=routes)
