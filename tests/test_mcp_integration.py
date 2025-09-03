@@ -10,7 +10,9 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastmcp import Client
 
-from ustad_mcp_server import mcp
+# Patch rate limiter before importing the server
+with patch("src.rate_limiting.create_rate_limiter", return_value=None):
+    from ustad_mcp_server import mcp
 
 
 @pytest.mark.asyncio
