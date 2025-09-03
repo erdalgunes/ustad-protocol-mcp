@@ -225,7 +225,7 @@ class TestSearchTavily:
             result = await search_tavily("test query")
 
         assert "error" in result
-        assert result["error"] == "Rate limited"
+        assert result["error"] == "Search request failed"
         assert "message" in result
 
     @patch("httpx.AsyncClient")
@@ -239,7 +239,7 @@ class TestSearchTavily:
             result = await search_tavily("test query")
 
         assert "error" in result
-        assert result["error"] == "Search unavailable"
+        assert result["error"] == "Search error"
         assert "message" in result
 
     @patch("httpx.AsyncClient")
