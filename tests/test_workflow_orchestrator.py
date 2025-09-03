@@ -97,7 +97,7 @@ class TestVerifyState:
     """Tests for VerifyState node."""
 
     @pytest.mark.asyncio
-    @patch("src.workflow_orchestrator.search_tavily")
+    @patch("src.workflow_orchestrator.tavily_search")
     async def test_verify_facts(self, mock_search):
         """Test that VerifyState verifies facts using Tavily."""
         from src.workflow_orchestrator import verify_facts
@@ -208,7 +208,7 @@ class TestStateTransitions:
                 "execution_result": None,
             }
 
-            with patch("src.workflow_orchestrator.search_tavily") as mock_search:
+            with patch("src.workflow_orchestrator.tavily_search") as mock_search:
                 mock_search.return_value = {"answer": "Python decorators are functions"}
 
                 result = await workflow.ainvoke(initial_state)
@@ -276,7 +276,7 @@ class TestRetryLogic:
         """Test retry logic when verification fails."""
         from src.workflow_orchestrator import verify_facts_with_retry
 
-        with patch("src.workflow_orchestrator.search_tavily") as mock_search:
+        with patch("src.workflow_orchestrator.tavily_search") as mock_search:
             # First call fails, second succeeds
             mock_search.side_effect = [
                 Exception("Network error"),
@@ -304,7 +304,7 @@ class TestRetryLogic:
         """Test behavior when max retries are exceeded."""
         from src.workflow_orchestrator import verify_facts_with_retry
 
-        with patch("src.workflow_orchestrator.search_tavily") as mock_search:
+        with patch("src.workflow_orchestrator.tavily_search") as mock_search:
             # All calls fail
             mock_search.side_effect = Exception("Persistent error")
 
@@ -393,7 +393,7 @@ class TestAntiHallucination:
         """Test that all verification attempts are logged for audit."""
         from src.workflow_orchestrator import get_verification_audit_log
 
-        with patch("src.workflow_orchestrator.search_tavily") as mock_search:
+        with patch("src.workflow_orchestrator.tavily_search") as mock_search:
             mock_search.return_value = {"answer": "Verified fact"}
 
             from src.workflow_orchestrator import verify_facts
