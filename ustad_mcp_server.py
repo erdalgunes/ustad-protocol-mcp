@@ -19,7 +19,6 @@ from src.sse_transport import create_development_emitter
 # Initialize FastMCP server
 mcp = FastMCP(
     name="ustad-protocol-mcp",
-    description="Minimal MCP server with sequential thinking and search capabilities",
 )
 
 # Initialize sequential thinking server (singleton pattern)
@@ -109,7 +108,7 @@ async def ustad_search(
     return await tavily_search(query, max_results, search_type)
 
 
-@mcp.resource("health")  # type: ignore[misc]
+@mcp.resource("data://health")  # type: ignore[misc]
 async def health_check() -> dict[str, Any]:
     """
     Health check endpoint for container orchestration.
