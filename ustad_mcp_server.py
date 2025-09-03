@@ -217,9 +217,10 @@ if __name__ == "__main__":
     # Create SSE transport
     transport = SseServerTransport("/messages/")
 
-    async def handle_sse(request: Any) -> None:
+    # Set up the MCP server to handle SSE connections
+    async def handle_sse(scope: Any, receive: Any, send: Any) -> None:
         """Handle SSE connections for MCP."""
-        async with transport.connect_sse(request.scope, request.receive, request._send) as (
+        async with transport.connect_sse(scope, receive, send) as (
             in_stream,
             out_stream,
         ):
