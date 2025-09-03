@@ -234,9 +234,12 @@ if __name__ == "__main__":
         return JSONResponse(get_capabilities_data())
 
     # Create Starlette app for SSE
+    # Mount handle_sse as an ASGI app directly, not as a Route
+    from starlette.routing import Mount as ASGIMount
+
     sse_app = Starlette(
         routes=[
-            Route("/sse", handle_sse, methods=["GET"]),
+            ASGIMount("/sse", app=handle_sse),  # Mount as ASGI app
             Route("/health", health_check, methods=["GET"]),
             Route("/capabilities", capabilities_endpoint, methods=["GET"]),
             Mount("/messages/", app=transport.handle_post_message),
