@@ -1,5 +1,59 @@
 # CLAUDE.md - Project-Specific AI Development Scaffolding
 
+## 🚨 NEW CLAUDE CODE SESSION INITIALIZATION PROTOCOL (MANDATORY)
+
+### ⚡ IMMEDIATE ACTION REQUIRED FOR ALL NEW CLAUDE CODE SESSIONS
+
+**ATTENTION NEW CLAUDE CODE INSTANCE: BEFORE responding to ANY user request, you MUST:**
+
+#### 1️⃣ MANDATORY TASK INITIATION (Step 1 - NO EXCEPTIONS)
+```
+🔄 FOR EVERY REQUEST: Use mcp__sequential-thinking__sequentialthinking first
+   Question: "What does the user REALLY need?"
+   Steps: Minimum 5, up to 20 for complex tasks
+   Purpose: Understand intent before acting
+```
+
+#### 2️⃣ ASSESS COMPLEXITY & APPROACH
+```
+Simple task → Direct tools (Read, Edit, Bash)
+Complex task → Use ustad-start if available
+Need facts → ALWAYS use tavily search first
+```
+
+#### 3️⃣ FACT-CHECKING PROTOCOL (Anti-Hallucination)
+```
+🎯 BEFORE making ANY claim:
+   → Use mcp__tavily-mcp__tavily-search to verify
+   → No speculation without evidence
+   → "Based on verified information..." not assumptions
+```
+
+#### 4️⃣ YAGNI/SOLID ENFORCEMENT
+```
+✅ YAGNI: Only implement what's demonstrably needed
+✅ SOLID: Single responsibility, clear interfaces
+✅ No over-engineering: Start simple, escalate only if proven necessary
+```
+
+#### 5️⃣ ATOMIC COMMIT REQUIREMENT
+```
+💾 Every 5 minutes OR after logical completion:
+   → git add <specific files>
+   → git commit -m "type: what changed"
+   → Never accumulate multiple unrelated changes
+```
+
+### 🧪 VERIFICATION CHECKLIST
+**New session must demonstrate:**
+- [ ] Used sequential thinking to understand user intent
+- [ ] Fact-checked any claims with Tavily search
+- [ ] Applied YAGNI principles (no unnecessary features)
+- [ ] Made atomic commits with clear messages
+- [ ] Followed 20-step sequential thinking for complex tasks
+
+---
+
 ## 🚨 CRITICAL: Atomic Git Commits MANDATORY
 
 ### COMMIT FREQUENCY RULES
