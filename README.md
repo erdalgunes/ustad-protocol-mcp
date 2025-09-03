@@ -37,14 +37,14 @@ Server will be available at `http://localhost:8000`
 ### Local Development
 
 ```bash
-# Install dependencies
-poetry install
+# Install dependencies (uv is 10-100x faster than pip/poetry)
+uv sync
 
 # Set environment
 export TAVILY_API_KEY=your_api_key_here
 
 # Run server
-poetry run python ustad_mcp_server.py
+uv run python ustad_mcp_server.py
 ```
 
 ## 🛠️ Tools
