@@ -11,7 +11,9 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-# Import our sequential thinking implementation
+from src.auth import create_auth_verifier
+
+# Import our sequential thinking implementation and auth
 from src.sequential_thinking import SequentialThinkingServer
 
 # Configure logging for security and debugging
@@ -20,8 +22,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize FastMCP server
-mcp = FastMCP(name="ustad-protocol-mcp")
+# Initialize OAuth 2.1 authentication (addresses CVE-2025-49596)
+auth_verifier = create_auth_verifier()
+
+# Log authentication status for security monitoring
+if auth_verifier:
+    logger.info("🔐 OAuth 2.1 authentication ENABLED - Server is secure")
+else:
+    logger.warning("⚠️  Authentication DISABLED - Development mode only")
+
+# Initialize FastMCP server with optional authentication
+mcp = FastMCP(
+    name="ustad-protocol-mcp",
+    auth=auth_verifier,  # None if auth not configured, enables development mode
+)
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
