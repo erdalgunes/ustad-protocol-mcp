@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Ustad Protocol MCP Server - FastMCP 2.x Implementation
-Uses FastMCP with HTTP transport for containerized deployment.
+Ustad Protocol MCP Server - Official MCP SDK Implementation
+Uses official MCP Python SDK with SSE transport for containerized deployment.
 Only two tools: ustad-think (sequential thinking) and ustad-search (Tavily).
 """
 
@@ -10,128 +10,195 @@ import os
 from typing import Any
 
 import httpx
-from fastapi import Response
-from fastmcp import FastMCP
+from mcp.server import Server
+from mcp.server.sse import SseServerTransport
+from mcp.types import Tool
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Mount, Route
 
 from src.constants import CAPABILITIES_DATA, HEALTH_DATA
 from src.sequential_thinking import SequentialThinkingServer
 
-# Initialize FastMCP server
-mcp = FastMCP("Ustad Protocol MCP Server")
+# Initialize MCP server
+server = Server("ustad-protocol-mcp")
 
 # Initialize sequential thinking server (singleton pattern)
 thinking_server = SequentialThinkingServer()
 
 
-@mcp.tool()  # type: ignore[misc]
-def ustad_think(
-    thought: str,
-    thought_number: int,
-    total_thoughts: int,
-    next_thought_needed: bool,
-    is_revision: bool = False,
-    revises_thought: int | None = None,
-    branch_from_thought: int | None = None,
-    branch_id: str | None = None,
-    needs_more_thoughts: bool = False,
-) -> dict[str, Any]:
-    """Sequential thinking tool for structured problem-solving."""
-    # Build thought data
-    thought_data = {
-        "thought": thought,
-        "thoughtNumber": thought_number,
-        "totalThoughts": total_thoughts,
-        "nextThoughtNeeded": next_thought_needed,
-    }
+@server.list_tools()
+async def list_tools() -> list[Tool]:
+    """List available tools."""
+    return [
+        Tool(
+            name="ustad_think",
+            description="Sequential thinking tool for structured problem-solving.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thought": {"type": "string", "description": "The thought content"},
+                    "thought_number": {"type": "integer", "description": "Current thought number"},
+                    "total_thoughts": {
+                        "type": "integer",
+                        "description": "Total number of thoughts planned",
+                    },
+                    "next_thought_needed": {
+                        "type": "boolean",
+                        "description": "Whether another thought is needed",
+                    },
+                    "is_revision": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Whether this is a revision",
+                    },
+                    "revises_thought": {
+                        "type": "integer",
+                        "description": "Which thought this revises",
+                        "nullable": True,
+                    },
+                    "branch_from_thought": {
+                        "type": "integer",
+                        "description": "Which thought to branch from",
+                        "nullable": True,
+                    },
+                    "branch_id": {
+                        "type": "string",
+                        "description": "Branch identifier",
+                        "nullable": True,
+                    },
+                    "needs_more_thoughts": {
+                        "type": "boolean",
+                        "default": False,
+                        "description": "Whether more thoughts are needed",
+                    },
+                },
+                "required": ["thought", "thought_number", "total_thoughts", "next_thought_needed"],
+            },
+        ),
+        Tool(
+            name="ustad_search",
+            description="Search tool using Tavily API for fact-checking and information retrieval.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The search query"},
+                    "max_results": {
+                        "type": "integer",
+                        "default": 5,
+                        "description": "Maximum number of results",
+                    },
+                    "search_type": {
+                        "type": "string",
+                        "default": "general",
+                        "description": "Type of search",
+                    },
+                },
+                "required": ["query"],
+            },
+        ),
+    ]
 
-    # Add optional fields if provided
-    if is_revision:
-        thought_data["isRevision"] = is_revision
-    if revises_thought is not None:
-        thought_data["revisesThought"] = revises_thought
-    if branch_from_thought is not None:
-        thought_data["branchFromThought"] = branch_from_thought
-    if branch_id is not None:
-        thought_data["branchId"] = branch_id
-    if needs_more_thoughts:
-        thought_data["needsMoreThoughts"] = needs_more_thoughts
 
-    # Process the thought
-    result = thinking_server.process_thought(thought_data)
-
-    # Add metadata about the thinking state
-    result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
-    result["branches"] = list(thinking_server.get_branches().keys())
-
-    return result
-
-
-@mcp.tool()  # type: ignore[misc]
-def ustad_search(
-    query: str,
-    max_results: int = 5,
-    search_type: str = "general",
-) -> dict[str, Any]:
-    """Search tool using Tavily API for fact-checking and information retrieval."""
-    # Get Tavily API key from environment
-    api_key = os.getenv("TAVILY_API_KEY")
-    if not api_key:
-        return {
-            "error": "Tavily API key not configured",
-            "message": "Please set TAVILY_API_KEY environment variable",
+@server.call_tool()
+async def call_tool(name: str, arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    """Handle tool calls."""
+    if name == "ustad_think":
+        # Build thought data
+        thought_data = {
+            "thought": arguments["thought"],
+            "thoughtNumber": arguments["thought_number"],
+            "totalThoughts": arguments["total_thoughts"],
+            "nextThoughtNeeded": arguments["next_thought_needed"],
         }
 
-    # Prepare the search request
-    url = "https://api.tavily.com/search"
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "api_key": api_key,
-        "query": query,
-        "max_results": max_results,
-        "search_depth": "basic",
-        "include_answer": True,
-        "include_raw_content": False,
-        "include_images": False,
-    }
+        # Add optional fields if provided
+        if arguments.get("is_revision", False):
+            thought_data["isRevision"] = arguments["is_revision"]
+        if arguments.get("revises_thought") is not None:
+            thought_data["revisesThought"] = arguments["revises_thought"]
+        if arguments.get("branch_from_thought") is not None:
+            thought_data["branchFromThought"] = arguments["branch_from_thought"]
+        if arguments.get("branch_id") is not None:
+            thought_data["branchId"] = arguments["branch_id"]
+        if arguments.get("needs_more_thoughts", False):
+            thought_data["needsMoreThoughts"] = arguments["needs_more_thoughts"]
 
-    # Add topic for news searches
-    if search_type == "news":
-        payload["topic"] = "news"
+        # Process the thought
+        result = thinking_server.process_thought(thought_data)
 
-    try:
-        with httpx.Client(timeout=30.0) as client:
-            response = client.post(url, json=payload, headers=headers)
-            response.raise_for_status()
+        # Add metadata about the thinking state
+        result["thoughtHistoryLength"] = len(thinking_server.get_thought_history())
+        result["branches"] = list(thinking_server.get_branches().keys())
 
-            data = response.json()
+        return [{"type": "text", "text": json.dumps(result)}]
 
-            # Format the response
-            result = {
-                "query": query,
-                "answer": data.get("answer", ""),
-                "results": [
-                    {
-                        "title": r.get("title", ""),
-                        "url": r.get("url", ""),
-                        "content": r.get("content", ""),
-                        "score": r.get("score", 0),
-                    }
-                    for r in data.get("results", [])[:max_results]
-                ],
-                "result_count": len(data.get("results", [])),
-                "search_type": search_type,
+    if name == "ustad_search":
+        # Get Tavily API key from environment
+        api_key = os.getenv("TAVILY_API_KEY")
+        if not api_key:
+            error_result = {
+                "error": "Tavily API key not configured",
+                "message": "Please set TAVILY_API_KEY environment variable",
             }
+            return [{"type": "text", "text": json.dumps(error_result)}]
 
-            return result
-
-    except httpx.HTTPStatusError as e:
-        return {
-            "error": "Search request failed",
-            "status_code": e.response.status_code,
-            "message": str(e),
+        # Prepare the search request
+        url = "https://api.tavily.com/search"
+        headers = {"Content-Type": "application/json"}
+        payload = {
+            "api_key": api_key,
+            "query": arguments["query"],
+            "max_results": arguments.get("max_results", 5),
+            "search_depth": "basic",
+            "include_answer": True,
+            "include_raw_content": False,
+            "include_images": False,
         }
-    except Exception as e:
-        return {"error": "Search error", "message": str(e)}
+
+        # Add topic for news searches
+        if arguments.get("search_type") == "news":
+            payload["topic"] = "news"
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(url, json=payload, headers=headers)
+                response.raise_for_status()
+
+                data = response.json()
+
+                # Format the response
+                result = {
+                    "query": arguments["query"],
+                    "answer": data.get("answer", ""),
+                    "results": [
+                        {
+                            "title": r.get("title", ""),
+                            "url": r.get("url", ""),
+                            "content": r.get("content", ""),
+                            "score": r.get("score", 0),
+                        }
+                        for r in data.get("results", [])[: arguments.get("max_results", 5)]
+                    ],
+                    "result_count": len(data.get("results", [])),
+                    "search_type": arguments.get("search_type", "general"),
+                }
+
+                return [{"type": "text", "text": json.dumps(result)}]
+
+        except httpx.HTTPStatusError as e:
+            error_result = {
+                "error": "Search request failed",
+                "status_code": e.response.status_code,
+                "message": str(e),
+            }
+            return [{"type": "text", "text": json.dumps(error_result)}]
+        except Exception as e:
+            error_result = {"error": "Search error", "message": str(e)}
+            return [{"type": "text", "text": json.dumps(error_result)}]
+
+    else:
+        return [{"type": "text", "text": f"Unknown tool: {name}"}]
 
 
 def get_health_data() -> dict[str, Any]:
@@ -151,26 +218,60 @@ def get_capabilities_data() -> dict[str, Any]:
     return CAPABILITIES_DATA.copy()
 
 
-@mcp.custom_route("GET", "/health")  # type: ignore[misc]
-def health_check() -> Response:  # type: ignore[no-any-unimported]
+async def health_check(request):
     """Health check endpoint for deployment platforms like Render."""
     health_data = get_health_data()
-    return Response(content=json.dumps(health_data), media_type="application/json", status_code=200)
+    return JSONResponse(health_data)
 
 
-if __name__ == "__main__":
-    # For containerized deployment with SSE
-    port = int(os.getenv("PORT", "8000"))
+def main():
+    """Run the MCP server with SSE transport."""
+    import uvicorn
+    from mcp.server.models import InitializationOptions
+    from mcp.types import ServerCapabilities, ToolsCapability
+    from starlette.responses import Response
 
-    # Detect if running in container and set appropriate host
-    is_container = os.path.exists("/.dockerenv") or os.getenv("DOCKER_CONTAINER") == "true"
-    default_host = "0.0.0.0" if is_container else "127.0.0.1"  # nosec B104
-    host = os.getenv("HOST", default_host)
-
-    print("🚀 Ustad Protocol MCP Server (FastMCP 2.x + SSE)")
-    print(f"📍 Running on {host}:{port}")
+    print("🚀 Ustad Protocol MCP Server (Official SDK + SSE)")
     print("🔧 Tools: ustad_think, ustad_search")
     print(f"🔑 Tavily API: {'✓ Configured' if os.getenv('TAVILY_API_KEY') else '✗ Not configured'}")
 
-    # Run with SSE transport (health check disabled in render.yaml)
-    mcp.run(transport="sse", host=host, port=port)
+    # Create SSE transport
+    sse = SseServerTransport("/messages/")
+
+    # SSE handler
+    async def handle_sse(request):
+        async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
+            await server.run(
+                streams[0],
+                streams[1],
+                InitializationOptions(
+                    server_name="ustad-protocol-mcp",
+                    server_version="1.0.0",
+                    capabilities=ServerCapabilities(tools=ToolsCapability()),
+                ),
+            )
+        return Response()
+
+    # Create routes
+    routes = [
+        Route("/sse", endpoint=handle_sse, methods=["GET"]),
+        Mount("/messages/", app=sse.handle_post_message),
+    ]
+
+    # Add health check route
+    async def health_check(request):
+        health_data = get_health_data()
+        return JSONResponse(health_data)
+
+    routes.append(Route("/health", endpoint=health_check, methods=["GET"]))
+
+    # Create and run Starlette app
+    starlette_app = Starlette(routes=routes)
+
+    port = int(os.getenv("PORT", "8080"))
+    print(f"🌐 Starting SSE server on port {port}")
+    uvicorn.run(starlette_app, host="0.0.0.0", port=port)  # nosec B104
+
+
+if __name__ == "__main__":
+    main()
