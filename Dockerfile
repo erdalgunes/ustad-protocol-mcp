@@ -33,6 +33,7 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 # Copy application code
 COPY --chown=ustaduser:ustaduser ustad_mcp_server.py .
 COPY --chown=ustaduser:ustaduser src/sequential_thinking.py ./src/
+COPY --chown=ustaduser:ustaduser src/constants.py ./src/
 
 # Set environment variables
 ENV PATH=/home/ustaduser/.local/bin:$PATH \
