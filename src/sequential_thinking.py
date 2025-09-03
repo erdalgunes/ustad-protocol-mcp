@@ -26,7 +26,7 @@ class SequentialThinkingServer:
     Implements chain-of-thought reasoning with revision and branching capabilities.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the sequential thinking server"""
         self.thought_history: list[ThoughtData] = []
         self.branches: dict[str, list[ThoughtData]] = {}
@@ -153,7 +153,7 @@ class SequentialThinkingServer:
         """
         return self._is_complete
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset the server to initial state"""
         self.thought_history.clear()
         self.branches.clear()

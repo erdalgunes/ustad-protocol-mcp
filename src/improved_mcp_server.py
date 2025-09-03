@@ -42,12 +42,40 @@ class ElicitationResponse(BaseModel):
     suggestions: list[str] | None = Field(default=None, description="Suggested values")
 
 
+# Singleton pattern to manage server state properly (avoiding globals)
+class ServerManager:
+    """Manages the sequential thinking server state without globals."""
+
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.thinking_server = None
+            cls._instance.thought_counter = 0
+        return cls._instance
+
+    def get_or_create_server(self) -> SequentialThinkingServer:
+        """Get or create the thinking server instance."""
+        if self.thinking_server is None:
+            self.thinking_server = SequentialThinkingServer()
+            self.thought_counter = 0
+        return self.thinking_server
+
+    def increment_counter(self) -> int:
+        """Increment and return the thought counter."""
+        self.thought_counter += 1
+        return self.thought_counter
+
+    def reset(self) -> None:
+        """Reset the server state."""
+        self.thinking_server = SequentialThinkingServer()
+        self.thought_counter = 0
+
+
 # Create the improved MCP server
 app = Server("sequential-thinking-improved")
-
-# Initialize the sequential thinking server
-thinking_server = None
-thought_counter = 0  # Auto-increment for simplified mode
+server_manager = ServerManager()
 
 
 @app.call_tool()
@@ -62,13 +90,8 @@ async def think_simple(thought: str, continue_thinking: bool = True) -> dict[str
     Returns:
         Structured response with thought processing result
     """
-    global thinking_server, thought_counter
-
-    if not thinking_server:
-        thinking_server = SequentialThinkingServer()
-        thought_counter = 0
-
-    thought_counter += 1
+    thinking_server = server_manager.get_or_create_server()
+    thought_counter = server_manager.increment_counter()
 
     try:
         thought_data = {
@@ -126,11 +149,7 @@ async def think_advanced(
     Returns:
         Structured response or elicitation request
     """
-    global thinking_server, thought_counter
-
-    if not thinking_server:
-        thinking_server = SequentialThinkingServer()
-        thought_counter = 0
+    thinking_server = server_manager.get_or_create_server()
 
     # Elicitation for missing fields
     if not thought or not thought.strip():
@@ -146,8 +165,7 @@ async def think_advanced(
 
     # Auto-generate missing fields (YAGNI - sensible defaults)
     if thought_number is None:
-        thought_counter += 1
-        thought_number = thought_counter
+        thought_number = server_manager.increment_counter()
 
     if total_thoughts is None:
         total_thoughts = thought_number + 5  # Assume 5 more thoughts
@@ -202,7 +220,7 @@ async def get_summary() -> dict[str, Any]:
     Returns:
         Summary with statistics and final conclusion
     """
-    global thinking_server
+    thinking_server = server_manager.thinking_server
 
     if not thinking_server:
         return {
@@ -244,11 +262,7 @@ def _analyze_pattern(history: list[dict]) -> str:
 @app.call_tool()
 async def reset_session() -> dict[str, Any]:
     """Reset the thinking session."""
-    global thinking_server, thought_counter
-
-    if thinking_server:
-        thinking_server.reset()
-    thought_counter = 0
+    server_manager.reset()
 
     return {"status": "success", "message": "Session reset. Ready for new thinking."}
 

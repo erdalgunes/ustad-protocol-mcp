@@ -211,7 +211,8 @@ class CLIInspector:
             branches = self.server.get_branches()
 
             if "test-branch" not in branches:
-                raise ValueError("Branch not created properly")
+                error_msg = "Branch not created properly"
+                raise ValueError(error_msg)
 
             self._print_colored("✅ Branching functionality: PASSED", ColorCode.GREEN)
             return TestResult(test_name="branching", status=TestStatus.PASSED.value, result=result)

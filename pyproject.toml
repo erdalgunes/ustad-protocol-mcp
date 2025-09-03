@@ -82,23 +82,23 @@ select = [
 ignore = [
     # Documentation - fix gradually
     "D",      # All docstring rules - too many violations to fix now
-    
-    # Annotations - fix gradually  
+
+    # Annotations - fix gradually
     "ANN",    # All annotation rules - too many violations to fix now
-    
+
     # Essential for functionality
     "S101",   # Use of assert detected (needed for tests)
     "T201",   # Print found (needed for CLI)
-    
+
     # Style choices
     "FBT001", # Boolean positional arg in function definition
     "FBT002", # Boolean default value in function definition
     "E501",   # Line too long - many existing violations
-    
+
     # Complexity - refactor later
     "C901",   # Too complex
     "PLR",    # All pylint refactor rules
-    
+
     # Minor improvements - fix later
     "BLE001", # Blind except
     "DTZ",    # Datetime timezone issues
@@ -114,6 +114,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "D", "ANN", "ARG", "PLC", "PLR"]
 "src/cli_inspector.py" = ["T201", "T203"]  # Allow print in CLI
+"scripts/run_tests.py" = ["S603"]  # Subprocess calls with controlled input for testing
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

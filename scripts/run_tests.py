@@ -11,6 +11,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 
@@ -38,7 +39,7 @@ class UstadTestRunner:
         if verbose:
             cmd.append("-v")
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -64,7 +65,7 @@ class UstadTestRunner:
         if verbose:
             cmd.append("-v")
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -90,7 +91,7 @@ class UstadTestRunner:
         if verbose:
             cmd.append("-v")
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -117,7 +118,7 @@ class UstadTestRunner:
         if verbose:
             cmd.append("-v")
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -143,7 +144,7 @@ class UstadTestRunner:
         if verbose:
             cmd.append("-v")
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -170,7 +171,7 @@ class UstadTestRunner:
         if parallel:
             cmd.extend(["-n", "auto"])  # Requires pytest-xdist
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -192,7 +193,7 @@ class UstadTestRunner:
             "--cov-report=html:htmlcov",
             "--cov-report=term",
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
 
         return {
             "exit_code": result.returncode,
@@ -221,11 +222,11 @@ class UstadTestRunner:
             passed = accuracy >= min_accuracy
             print(f"   Result: {accuracy:.1%} - {'✅ PASSED' if passed else '❌ FAILED'}")
 
-            return passed
-
         except Exception as e:
             print(f"   Error validating {detector_name}: {e}")
             return False
+        else:
+            return passed
 
     def generate_test_report(self, results: dict[str, Any]) -> str:
         """Generate comprehensive test report."""
@@ -346,7 +347,8 @@ Test Runner: Comprehensive Anti-Pattern Detection Validation
         print(report)
 
         # Save results to file
-        with open("test_results_summary.json", "w") as f:
+        results_path = Path("test_results_summary.json")
+        with results_path.open("w") as f:
             json.dump(results, f, indent=2, default=str)
 
         # Exit with appropriate code

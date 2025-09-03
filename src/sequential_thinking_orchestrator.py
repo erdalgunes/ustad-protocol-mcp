@@ -35,7 +35,7 @@ class ReasoningProvider(ABC):
 class LocalReasoningProvider(ReasoningProvider):
     """Our local sequential thinking implementation"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.server = SequentialThinkingServer()
 
     async def reason(self, request: ReasoningRequest) -> dict[str, Any]:
@@ -99,7 +99,7 @@ class SequentialThinkingOrchestrator:
     Implements CBT/HiTOP scaffolding ON TOP OF existing reasoning capabilities.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.providers: dict[str, ReasoningProvider] = {
             "local": LocalReasoningProvider(),
             "gpt-5": GPT5ReasoningProvider(),
@@ -268,7 +268,7 @@ class SequentialThinkingOrchestrator:
         """Get the complete reasoning chain"""
         return self.history
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset orchestrator state"""
         self.history.clear()
         self.maintenance_factors_identified.clear()
