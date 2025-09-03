@@ -7,7 +7,7 @@ the sequential thinking server, following SOLID principles.
 from typing import Any
 
 from .sequential_thinking import SequentialThinkingServer
-from .sse_events import emit_intent_analyzed
+from .sse_events import emit_intent_analyzed, emit_thinking_step
 
 # Singleton instance of the thinking server
 _thinking_server = SequentialThinkingServer()
@@ -57,6 +57,9 @@ async def generate_thinking_steps(intent: str, min_steps: int = 10) -> list[str]
     _ = _thinking_server.process_thought(thought_data)
     thinking_steps.append(str(thought_data["thought"]))
 
+    # Emit thinking step event for transparency
+    await emit_thinking_step(1, min_steps, str(thought_data["thought"]))
+
     # Continue generating steps
     step_prompts = [
         "Breaking down the request into components",
@@ -84,6 +87,9 @@ async def generate_thinking_steps(intent: str, min_steps: int = 10) -> list[str]
         }
         _ = _thinking_server.process_thought(thought_data)
         thinking_steps.append(prompt)
+
+        # Emit thinking step event for transparency
+        await emit_thinking_step(i, min_steps, prompt)
 
         if len(thinking_steps) >= min_steps:
             break

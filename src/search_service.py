@@ -9,6 +9,8 @@ from typing import Any
 
 import httpx
 
+from .sse_events import emit_fact_check_triggered
+
 
 async def tavily_search(
     query: str, max_results: int = 5, search_type: str = "general"
@@ -49,6 +51,9 @@ async def tavily_search(
         payload["topic"] = "news"
 
     try:
+        # Emit fact check triggered event for transparency (Anti-Hallucination Core)
+        await emit_fact_check_triggered(query, "Preventing hallucination")
+
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
