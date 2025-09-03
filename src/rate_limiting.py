@@ -21,8 +21,12 @@ try:
         RateLimitingMiddleware,
         TokenBucketRateLimiter,
     )
+
+    _FASTMCP_AVAILABLE = True
 except ImportError:
     # Graceful degradation if FastMCP rate limiting not available
+    _FASTMCP_AVAILABLE = False
+    # Use Any to avoid type issues with None assignments
     RateLimitingMiddleware = None
     TokenBucketRateLimiter = None
     RateLimitError = None
@@ -42,7 +46,7 @@ def create_rate_limiter() -> Any | None:
         RATE_LIMIT_REQUESTS_PER_MINUTE: Requests per minute per client (default: 60)
         RATE_LIMIT_BURST_SIZE: Token bucket burst capacity (default: 10)
     """
-    if RateLimitingMiddleware is None:
+    if not _FASTMCP_AVAILABLE:
         logger.warning(
             "FastMCP rate limiting not available. Update FastMCP to latest version for rate limiting"
         )
@@ -54,20 +58,25 @@ def create_rate_limiter() -> Any | None:
         return None
 
     try:
-        # Parse configuration
+        # Parse configuration - convert to requests per second for FastMCP v2.0 API
         requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "60"))
         burst_size = int(os.getenv("RATE_LIMIT_BURST_SIZE", "10"))
 
-        # Create token bucket rate limiter
-        rate_limiter_impl = TokenBucketRateLimiter(
-            requests_per_minute=requests_per_minute, burst_size=burst_size
+        # Convert to requests per second (FastMCP v2.0 uses RPS)
+        requests_per_second = requests_per_minute / 60.0
+
+        # Create middleware using FastMCP v2.0 API
+        middleware = RateLimitingMiddleware(
+            max_requests_per_second=requests_per_second,
+            burst_capacity=burst_size,
+            global_limit=True,  # Apply globally for simplicity
         )
 
-        # Create middleware
-        middleware = RateLimitingMiddleware(rate_limiter=rate_limiter_impl)
-
         logger.info(
-            "Rate limiting enabled - %d req/min with burst %d", requests_per_minute, burst_size
+            "Rate limiting enabled - %.1f req/sec (%.0f req/min) with burst %d",
+            requests_per_second,
+            requests_per_minute,
+            burst_size,
         )
 
         return middleware
@@ -78,7 +87,7 @@ def create_rate_limiter() -> Any | None:
 
 def is_rate_limiting_available() -> bool:
     """Check if rate limiting dependencies are available."""
-    return RateLimitingMiddleware is not None
+    return _FASTMCP_AVAILABLE
 
 
 def get_rate_limit_config() -> dict[str, int]:
@@ -98,5 +107,5 @@ def get_rate_limit_info() -> dict[str, Any]:
         "rate_limiting_enabled": config["enabled"],
         "requests_per_minute": config["requests_per_minute"],
         "burst_size": config["burst_size"],
-        "fastmcp_middleware": RateLimitingMiddleware is not None,
+        "fastmcp_middleware": _FASTMCP_AVAILABLE,
     }
