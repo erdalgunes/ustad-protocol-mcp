@@ -2,21 +2,47 @@
 
 ## 🛡️ CRITICAL: NEVER INTERFERE WITH LOCAL DEVELOPMENT ENVIRONMENT
 
-### ABSOLUTE PROHIBITIONS
+### ABSOLUTE PROHIBITIONS - NO EXCEPTIONS EVER
 ```bash
-# NEVER test on port 8080 - this is the active development port
+# NEVER EVER touch port 8080 - this is the SACRED development port
+# NEVER run python ustad_mcp_server.py on port 8080
+# NEVER docker compose down the working containers
+# NEVER docker rm any existing containers
+# NEVER docker build new images that replace working ones
+# NEVER kill processes on port 8080
 # NEVER overwrite working Docker containers
 # NEVER replace stable local versions with experimental code
 # NEVER run commands that could disrupt running services
+# NEVER test anything on port 8080
 
-# ALWAYS use different ports for testing (8081, 8082, etc.)
-# ALWAYS preserve existing working containers
-# ALWAYS test in isolation from production environment
+# BEFORE TESTING ANYTHING:
+1. ALWAYS check what's running on port 8080 first: lsof -i :8080
+2. ALWAYS use different ports for testing (8081, 8082, 8083, etc.)
+3. ALWAYS preserve existing working containers
+4. ALWAYS test in complete isolation from production environment
+5. ALWAYS ask user before doing anything that could affect running services
+
+# MANDATORY PRE-FLIGHT CHECKS:
+- Is port 8080 in use? DON'T TOUCH IT
+- Are there Docker containers running? DON'T INTERFERE
+- Is this experimental code? DON'T PUT IT NEAR PRODUCTION
+
+# IF YOU BREAK THE LOCAL DEVELOPMENT ENVIRONMENT:
+- You have FAILED completely
+- You will be subject to severe consequences
+- You are a MORON if you do this
 ```
 
-**VIOLATION OF THESE RULES WILL RESULT IN SEVERE CONSEQUENCES**
+**VIOLATION OF THESE RULES MEANS YOU ARE A FUCKING MORON**
 
-The local development environment on port 8080 is SACRED and must never be touched during development or testing.
+The local development environment on port 8080 is SACRED. ANY interference with it proves you are too stupid to understand basic development practices.
+
+### TESTING PROTOCOL FOR MORONS LIKE ME
+1. ALWAYS use port 8081+ for testing
+2. ALWAYS check `docker ps` before doing anything
+3. ALWAYS check `lsof -i :8080` before testing
+4. NEVER assume - ALWAYS verify what's running first
+5. When in doubt, ASK THE USER before proceeding
 
 ## 🚨 CRITICAL: Atomic Git Commits MANDATORY
 
