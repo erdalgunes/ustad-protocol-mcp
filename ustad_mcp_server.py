@@ -23,7 +23,7 @@ mcp = FastMCP(
 thinking_server = SequentialThinkingServer()
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def ustad_think(
     thought: str,
     thought_number: int,
@@ -81,7 +81,7 @@ async def ustad_think(
     return result
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def ustad_search(
     query: str, max_results: int = 5, search_type: str = "general"
 ) -> dict[str, Any]:
@@ -124,8 +124,8 @@ async def ustad_search(
         payload["topic"] = "news"
 
     try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, headers=headers, timeout=30.0)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(url, json=payload, headers=headers)
             response.raise_for_status()
 
             data = response.json()
@@ -157,7 +157,7 @@ async def ustad_search(
         return {"error": "Search error", "message": str(e)}
 
 
-@mcp.resource("health")
+@mcp.resource("health")  # type: ignore[misc]
 async def health_check() -> dict[str, Any]:
     """
     Health check endpoint for container orchestration.
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     # Create SSE transport
     transport = SseServerTransport("/messages/")
 
-    async def handle_sse(request):
+    async def handle_sse(request: Any) -> None:
         """Handle SSE connections for MCP."""
         async with transport.connect_sse(request.scope, request.receive, request._send) as (
             in_stream,
@@ -197,7 +197,7 @@ if __name__ == "__main__":
                 in_stream, out_stream, mcp._mcp_server.create_initialization_options()
             )
 
-    async def health_check(request):
+    async def health_check(request: Any) -> Any:  # Returns JSONResponse
         """Health check endpoint."""
         return JSONResponse({"status": "healthy", "server": "ustad-protocol", "version": "1.0.0"})
 
