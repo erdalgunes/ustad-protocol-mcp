@@ -5,10 +5,12 @@ Uses FastMCP with SSE transport for containerized deployment.
 Only two tools: ustad-think (sequential thinking) and ustad-search (Tavily).
 """
 
+import json
 import os
 from typing import Any
 
 import httpx
+from fastapi import Response
 from fastmcp import FastMCP
 
 from src.constants import CAPABILITIES_DATA, HEALTH_DATA
@@ -147,6 +149,13 @@ def get_health_data() -> dict[str, Any]:
 def get_capabilities_data() -> dict[str, Any]:
     """Get server capabilities data."""
     return CAPABILITIES_DATA.copy()
+
+
+@mcp.custom_route("GET", "/health")  # type: ignore[misc]
+def health_check() -> Response:  # type: ignore[no-any-unimported]
+    """Health check endpoint for deployment platforms like Render."""
+    health_data = get_health_data()
+    return Response(content=json.dumps(health_data), media_type="application/json", status_code=200)
 
 
 if __name__ == "__main__":
