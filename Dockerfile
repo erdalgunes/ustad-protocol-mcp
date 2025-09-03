@@ -8,19 +8,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
 
 # Copy dependency files first for better caching
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock README.md ./
 
-# Install dependencies using cache mount for faster builds
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-install-project
+# Install dependencies (removed cache mount for compatibility)
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Copy all source files
 COPY ustad_mcp_server.py .
 COPY src/ ./src/
 
 # Install the project itself
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev
 
 # Production stage
 FROM python:3.11-slim
