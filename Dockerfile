@@ -1,22 +1,26 @@
-# Multi-stage build for minimal image size
+# Multi-stage build for minimal image size with uv
 FROM python:3.11-slim as builder
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Set working directory
 WORKDIR /app
 
-# Install poetry and build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -sSL https://install.python-poetry.org | python3 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+# Copy dependency files first for better caching
+COPY pyproject.toml uv.lock ./
 
-# Copy poetry files first for better caching
-COPY pyproject.toml poetry.lock* ./
-# Install dependencies (no dev deps, no root package yet)
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root --only main
+# Install dependencies using cache mount for faster builds
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project
+
+# Copy all source files
+COPY ustad_mcp_server.py .
+COPY src/ ./src/
+
+# Install the project itself
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
 # Production stage
 FROM python:3.11-slim
@@ -27,18 +31,15 @@ RUN useradd -m -u 1000 ustaduser
 # Set working directory
 WORKDIR /app
 
-# Copy Python packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-
-# Copy application code
-COPY --chown=ustaduser:ustaduser ustad_mcp_server.py .
-COPY --chown=ustaduser:ustaduser src/sequential_thinking.py ./src/
+# Copy the virtual environment and application from builder
+COPY --from=builder --chown=ustaduser:ustaduser /app /app
 
 # Set environment variables
-ENV PATH=/home/ustaduser/.local/bin:$PATH \
+ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     DOCKER_CONTAINER=true \
+    HOST=0.0.0.0 \
     PORT=8000
 
 # Switch to non-root user

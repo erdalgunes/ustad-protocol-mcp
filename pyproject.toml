@@ -1,6 +1,6 @@
 [project]
 name = "ustad-protocol-mcp"
-version = "1.0.0"
+version = "0.1.0"
 description = "Minimal MCP server with sequential thinking and search capabilities"
 authors = [{ name = "Ustad Protocol Team" }]
 requires-python = ">=3.11,<3.13"

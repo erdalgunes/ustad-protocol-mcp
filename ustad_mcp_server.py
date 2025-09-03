@@ -224,7 +224,7 @@ async def get_health_status() -> dict[str, Any]:
     return {
         "status": "healthy",
         "server": "ustad-protocol-mcp",
-        "version": "1.0.0",
+        "version": "0.1.0",
         "tools": ["ustad_think", "ustad_search"],
         "thinking_history_length": len(thinking_server.get_thought_history()),
         "tavily_configured": bool(os.getenv("TAVILY_API_KEY")),
