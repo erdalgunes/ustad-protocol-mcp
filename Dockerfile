@@ -1,24 +1,22 @@
-# Multi-stage build for minimal image size with uv
+# Multi-stage build for minimal image size
 FROM python:3.11-slim as builder
-
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files first for better caching
-COPY pyproject.toml uv.lock README.md ./
+# Install poetry and build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
-# Install dependencies (removed cache mount for compatibility)
-RUN uv sync --frozen --no-dev --no-install-project
-
-# Copy all source files
-COPY ustad_mcp_server.py .
-COPY src/ ./src/
-
-# Install the project itself
-RUN uv sync --frozen --no-dev
+# Copy poetry files first for better caching
+COPY pyproject.toml poetry.lock* ./
+# Install dependencies (no dev deps, no root package yet)
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root --only main
 
 # Production stage
 FROM python:3.11-slim
@@ -29,26 +27,31 @@ RUN useradd -m -u 1000 ustaduser
 # Set working directory
 WORKDIR /app
 
-# Copy the virtual environment and application from builder
-COPY --from=builder --chown=ustaduser:ustaduser /app /app
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Copy application code
+COPY --chown=ustaduser:ustaduser ustad_mcp_server.py .
+COPY --chown=ustaduser:ustaduser src/sequential_thinking.py ./src/
+COPY --chown=ustaduser:ustaduser src/constants.py ./src/
+COPY --chown=ustaduser:ustaduser scripts/health_check.py ./scripts/
 
 # Set environment variables
-ENV PATH="/app/.venv/bin:$PATH" \
+ENV PATH=/home/ustaduser/.local/bin:$PATH \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     DOCKER_CONTAINER=true \
-    HOST=0.0.0.0 \
-    PORT=8000
+    PORT=8080
 
 # Switch to non-root user
 USER ustaduser
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python scripts/health_check.py || exit 1
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Run the server
 CMD ["python", "ustad_mcp_server.py"]
