@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: ustad-protocol-mcp-server
     ports:
-      - "8000:8000"
+      - "8080:8000"
     environment:
       - TAVILY_API_KEY=${TAVILY_API_KEY}
       - PORT=8000
