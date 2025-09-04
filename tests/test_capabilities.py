@@ -1,10 +1,10 @@
 """Tests for /capabilities endpoint."""
 
 import pytest
-from fastapi.testclient import TestClient
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
+from starlette.testclient import TestClient
 
 from src.constants import CAPABILITIES_DATA, HEALTH_DATA
 
